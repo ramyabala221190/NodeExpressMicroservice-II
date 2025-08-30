@@ -1,0 +1,40 @@
+services:
+    node:
+      image: node-express
+      restart: always
+      depends_on:
+          - nginx
+          - db
+      build:
+        context: ../
+        dockerfile: docker/Dockerfile
+      container_name: node-express-container
+      env_file: .env
+      ports: 
+        - 8091:8091
+
+    nginx:
+       image: nginx:alpine
+       container_name: nginx-container
+       restart: always
+       env_file: .env
+       volumes: 
+         - ../nginx/nginx.conf:/etc/nginx/templates/default.conf.template
+       ports: 
+         - 8400:8400
+
+    db:
+      image: mongo:latest
+      container_name: mongo-container
+      restart: always
+      ports:
+         - 27017:27017
+      volumes:
+         - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+
+  # In this example, mongo-data is a named volume that ensures all data written 
+  # by the MongoDB container to /data/db (MongoDB's default data directory) is saved persistently 
+  # on the host system, even if the mongodb container is removed or recreated.

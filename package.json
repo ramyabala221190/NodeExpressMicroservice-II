@@ -1,0 +1,22 @@
+{
+  "name": "mongonodesetup",
+  "version": "1.0.0",
+  "description": "1. We need to download the free community edition of Mongo DB",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node -r dotenv/config dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0",
+    "dotenv": "^17.2.1",
+    "typescript": "^5.9.2"
+  }
+}
