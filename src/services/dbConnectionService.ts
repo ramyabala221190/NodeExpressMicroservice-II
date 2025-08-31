@@ -1,7 +1,7 @@
-import { CustomError } from "../app.js";
-import { products } from "../data/seedData.js";
-import { connect } from "../dbClient.js";
-import productModel from "../models/productModel.js";
+import { CustomError } from "../app";
+import { products } from "../data/seedData";
+import { connect } from "../dbClient";
+import productModel from "../models/productModel";
 
 export async function connectToDb(){
     try{

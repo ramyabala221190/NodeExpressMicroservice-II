@@ -99,11 +99,38 @@ npm init
 tsc --init
 git init
 
-npm install --save-dev typescript @types/node @types/express dotenv
+npm install --save-dev typescript @types/node @types/express dotenv ts-node nodemon
 npm install --save express
 npm install --save mongoose
 
-## Running the application
+## Local run
+
+We are using nodemon + ts-node to run the project locally
+
+We have created a nodemon.json in the root of the project. We are using ts-node to compile the .ts files.
+Instead of node, ts-node is used. 
+
+```
+{
+    "watch": ["src"],
+    "ext": "ts,js",
+    "ignore": ["dist", "node_modules"],
+    "exec": "ts-node -r dotenv/config ./src/app.ts"
+  }
+
+```
+
+Since the location of the .env file is not in the root of the project, we need to set the value of the
+DOTENV_CONFIG_PATH environment variable to the custom path of the .env file and then executing nodemon/
+
+```
+    "local":"set DOTENV_CONFIG_PATH=./docker/.env&&nodemon",
+
+```
+
+Thus "npm run local" is used to run the project locally.
+
+## Running the application using docker
 
 ```
 docker compose -p microservices -f docker/docker-compose.yml build

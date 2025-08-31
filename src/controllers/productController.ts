@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { createProductService, deleteProductService, getAllProductsService, getProductDetailService, updateProductService } from "../services/productService";
+import { createProductService, deleteProductService, getAllProductsService, 
+    getProductDetailService, updateProductService } from "../services/productService";
 
 
 export async function getProductsController(req:Request,res:Response,next:NextFunction){

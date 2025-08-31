@@ -1,8 +1,8 @@
 import express from 'express';
 import { NextFunction, Request, Response } from "express";
-import productRouter from './routes/productRoute.js';
-import appRouter from './routes/app.route.js';
-import { connectToDb } from './services/dbConnectionService.js';
+import productRouter from './routes/productRoute';
+import appRouter from './routes/app.route';
+import { connectToDb } from './services/dbConnectionService';
 
 //custom error class for creating custom error messages
 export class CustomError extends Error{

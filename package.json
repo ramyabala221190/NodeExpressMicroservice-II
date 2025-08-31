@@ -4,7 +4,8 @@
   "description": "1. We need to download the free community edition of Mongo DB",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node -r dotenv/config dist/app.js",
+    "start": "tsc && node dist/app.js",
+    "local":"set DOTENV_CONFIG_PATH=./docker/.env&&nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,6 +18,7 @@
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.0",
     "dotenv": "^17.2.1",
+    "nodemon": "^3.1.10",
     "typescript": "^5.9.2"
   }
 }
