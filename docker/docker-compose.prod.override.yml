@@ -1,0 +1,48 @@
+services:    
+    product-node-1:
+      env_file: 
+       - prod.env
+      environment:
+       - APP_HTTP_PORT=8095
+      volumes:
+        - C:/Users/User/certificates/self-signed-custom-ca/product.key:/var/lib/certs/product.key
+        - C:/Users/User/certificates/self-signed-custom-ca/product.crt:/var/lib/certs/product.crt
+        - C:/Users/User/certificates/self-signed-custom-ca/rootCA.crt:/var/lib/certs/rootCA.crt
+      ports: 
+        - 8095:8095
+      networks:
+       - mynetwork-prod
+    
+    product-node-2:
+     env_file: 
+       - prod.env
+     environment:
+       - APP_HTTP_PORT=8096
+     volumes:
+        - C:/Users/User/certificates/self-signed-custom-ca/product.key:/var/lib/certs/product.key
+        - C:/Users/User/certificates/self-signed-custom-ca/product.crt:/var/lib/certs/product.crt
+        - C:/Users/User/certificates/self-signed-custom-ca/rootCA.crt:/var/lib/certs/rootCA.crt
+     ports: 
+        - 8096:8096
+     networks:
+       - mynetwork-prod
+
+    product-node-3:
+     env_file: 
+       - prod.env
+     environment:
+       - APP_HTTP_PORT=8097
+     volumes:
+        - C:/Users/User/certificates/self-signed-custom-ca/product.key:/var/lib/certs/product.key
+        - C:/Users/User/certificates/self-signed-custom-ca/product.crt:/var/lib/certs/product.crt
+        - C:/Users/User/certificates/self-signed-custom-ca/rootCA.crt:/var/lib/certs/rootCA.crt
+     ports: 
+        - 8097:8097
+     networks:
+       - mynetwork-prod
+
+    product-db:
+      ports:
+         - 27016:27017
+      networks:
+       - mynetwork-prod

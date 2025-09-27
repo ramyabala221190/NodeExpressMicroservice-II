@@ -1,8 +1,15 @@
 import express from "express";
 import { createProductController, deleteProductController, getProductDetailController, 
-    getProductsController, updateProductController } from "../controllers/productController";
+    getProductsController, sendMessageToCartMicroservice, updateProductController, welcomeProductController } from "../controllers/productController";
 
 const productRouter= express.Router();
+
+
+productRouter.route('/')
+.get(welcomeProductController);
+
+productRouter.route('/carts')
+.get(sendMessageToCartMicroservice);
 
 productRouter.route('/products')
 .get(getProductsController)

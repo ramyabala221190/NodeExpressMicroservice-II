@@ -1,0 +1,96 @@
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Server listening on port 3601","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Successfully connected to Mongo","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Server listening on port 3601","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Successfully connected to Mongo","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http localhost:3601 localhost /myproduct/products /myproduct/products","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/products\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http localhost:3601 localhost /myproduct/carts /myproduct/carts","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/carts\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http localhost:3601 localhost /myproduct/ /myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http localhost:3601 localhost /myproduct/ /myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http localhost:3601 localhost /myproduct/ /myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Server listening on port 3601","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Successfully connected to Mongo","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601//myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601//myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601//myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Server listening on port 3601","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Successfully connected to Mongo","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/carts","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/carts\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/carts","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/carts\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Server listening on port 3601","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Successfully connected to Mongo","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Server listening on port 3601","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Successfully connected to Mongo","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/carts","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/carts\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/\",\n    \"status\":\"304\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Server listening on port 3601","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Successfully connected to Mongo","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Received a request on http://localhost:3601/myproduct/products","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"info","message":"Request received:{\n    \"method\":\"GET\",\n    \"url\":\"/myproduct/products\",\n    \"status\":\"200\",\n    \"response-time\":\"response-time ms\"\n}","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Server listening on port 3601","service":"productMicroservice"}
+{"buildInfo":{"version":"1.0.0"},"level":"debug","message":"Successfully connected to Mongo","service":"productMicroservice"}

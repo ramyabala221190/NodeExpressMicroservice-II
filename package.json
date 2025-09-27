@@ -1,24 +1,28 @@
 {
-  "name": "mongonodesetup",
+  "name": "productmicroservice",
   "version": "1.0.0",
   "description": "1. We need to download the free community edition of Mongo DB",
   "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/app.js",
-    "local":"set DOTENV_CONFIG_PATH=./docker/.env&&nodemon",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "local": "set DOTENV_CONFIG_PATH=./local.env&&nodemon"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.11.0",
     "express": "^5.1.0",
-    "mongoose": "^8.18.0"
+    "mongoose": "^8.18.0",
+    "morgan": "^1.10.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^24.3.0",
     "dotenv": "^17.2.1",
     "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
 }

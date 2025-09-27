@@ -1,62 +1,103 @@
-https://github.com/Distinctlyminty/MicroserviceFundamentals/blob/main/VehicleService/src/services/vehicleService.js
+# running locally
 
-# Basics of MongoDB
+First steps towards a Node Express- Mongo DB project
 
-In MongoDB, data is organized hierarchically:
-## Databases:
-A MongoDB instance refers to a single running process of the MongoDB database server, typically the mongod process. This process is responsible for managing the data files, handling client connections, and executing database operations.
-A single process represents one active mongod process running on a server.
+npm init
+tsc --init
+git init
 
-Each instance/single mongod process has its own configuration, often defined in a configuration file, which specifies details like data file locations, port number for connections, and other operational parameters.
+This project is developed using typescript and uses nodemon to automatically restart the development server, everytime there is any change in the files in the src folder. We are also using ts-node, which is a TypeScript execution engine and REPL (Read-Eval-Print Loop) for Node.js. It allows direct execution of TypeScript code on Node.js without the need for pre-compilation into JS.
 
-Each instance/single mongod process manages its own set of data files where the actual MongoDB documents are stored.
+We have installed dotenv as dev dependency to load environment variables from the local.env file in the root of the project. dotenv is only used for local development.
 
-Each instance/single mongod process listens on a specific port for incoming client connections.
+MongoDB is schema-less, which means documents can have any shape. That's flexible - but also risky. Mongoose lets you define schemas that enforce structure. Hence the mongoose npm package.
 
-A MongoDB instance can operate as a standalone server or as part of a larger cluster, such as a replica set or a sharded cluster. In a clustered environment, multiple instances work together to provide high availability and scalability.
+winston and morgan npm packages are for logging purposes. Morgan is a middleware for Express apps that logs incoming HTTP requests. On the other hand, Winston is a general-purpose logger for your entire application - not just HTTP.
 
-A MongoDB instance can host multiple databases, each containing a distinct set of collections.
+axios is required when 1 microservice wants to communicate with another microservice.
 
-While a single MongoDB instance can host multiple databases, using separate databases for different environments within that instance is generally preferred
+Just running the below script in package.json
 
+```
+    "local": "set DOTENV_CONFIG_PATH=./local.env&&nodemon",
 
-## Collections:
-Analogous to tables in relational databases, a collection is a grouping of MongoDB documents. Unlike relational tables, collections are schema-less, meaning documents within the same collection can have varying fields and data types. Collections are automatically created when the first document is inserted into them.
+```
 
-## Documents:
-Documents are the fundamental units of data storage in MongoDB, similar to rows in relational databases. They are stored in BSON (Binary JSON) format and consist of key-value pairs, which are essentially JSON objects. Each document within a collection must contain a unique _id field, which serves as a primary key. If not explicitly provided, MongoDB automatically generates an ObjectId for this field.
+We are setting the environment variable DOTENV_CONFIG_PATH to ./local.env so that dotenv can pick the correct environment file when we execute the nodemon command.
 
-## Fields:
-Within a document, individual key-value pairs represent fields, akin to columns in a relational table. Fields can hold various data types, including strings, numbers, booleans, arrays, embedded documents, and more. MongoDB's flexible schema allows for dynamic addition or removal of fields within documents in a collection without requiring a predefined schema for the entire collection.
+Moving to the nodemon.json file. It's a configuration file used by Nodemon. Instead of passing command-line flags every time, you can define them once in this JSON file.
 
-## Schema:
+```
+{
+"watch": ["src"],
+"ext": "ts,js",
+"ignore": ["dist", "node_modules"],
+"exec": "ts-node -r dotenv/config ./src/app.ts"
+}
 
-In MongoDB, a schema is defined for a collection, not for an entire database.
-While MongoDB is known for its schema flexibility, meaning you aren't strictly required to define a schema before inserting data, 
-it's common practice to enforce a structure, especially in application development. This is typically done at the collection level, 
-often using an Object Data Modeling (ODM) library like Mongoose in Node.js.
+```
 
-A schema defines:
-1. The structure of documents: within a specific collection.
-2. The fields: that documents in that collection should contain.
-3. Data types: for each field (e.g., String, Number, Date, Boolean).
-4. Validation rules: to ensure data integrity.
-5. Default values: for fields.
+So Nodemon is going to watch only the src folder for any changes. It only going to watch only files with .ts or .js extension within the src folder. It will ignore any changes within the dist or the node_modules folder. Finally it will run the below command, everytime there is a change and also when the server is started for the first time using "npm run local"
 
-## Installation
+```
+ts-node -r dotenv/config ./src/app.ts
 
-1. We need to download the free community edition of Mongo DB
+```
 
-https://www.mongodb.com/products/self-managed/community-edition ---> https://www.mongodb.com/try/download/community
-Here we download the Mongo DB community server
+Note:
+If you do not want to install the dotenv package, you can load environment variables using nodemon as well. Specify the environment vairables as key-value pairs within the "env" field in the nodemon.json, instead of defining it within the local.env file. You can skip the dotenv/config within the "exec" field.
+```
+{
+"watch": ["src"],
+"ext": "ts,js",
+"ignore": ["dist", "node_modules"],
+"env":{
+  //define your key-value pairs here
+},
+"exec": "ts-node ./src/app.ts"
+}
+```
 
+Finally in the "local" script in the package.json will be just executing the nodemon command.
 
-2. When installing the .msi, choose custom setup.Click Next and select to use mongodb as a service and not
+```
+"local": "nodemon",
+
+```
+
+how are we running MongoDb locally ?
+
+We need to do this only once. not for every microservice because all microservices are running on the same host when running locally.
+
+For local testing, we need to install the Community Edition of MongoDB. Below is the link. Here we download the Mongo DB community server and then install it. MongoDB Community Server is the free, open-source version of the MongoDB document database. It is widely used for development and non-production environments.
+
+https://www.mongodb.com/try/download/community
+
+ When installing the .msi, choose custom setup.Click Next and select to use mongodb as a service and not
 as a local domain or user.
 
-3. Mongo compass is a user interface to interact with the DB and the data.
+Once installed, you can create a empty data/db directory within C:/ using the command "mkdir data/db" in cmd . To start the mongodb server, which by default listens on the port 27017.
 
-4. The dbClient.js is created to manage the database connections.
+The MongoDB data directory is the location on the file system where MongoDB stores all of its data files, including collections, indexes, and oplog (for replica sets).
+Default Locations:
+Unix-like systems (Linux, macOS): /data/db
+Windows: C:\data\db (on the drive from which mongod is started, if not specified)
+
+Go to the bin folder of the installation on command prompt. For me it is C:\Program Files\MongoDB\Server\8.0\bin. Type "mongod" to start the mongodb server on default port 27017.
+
+To verify if the mongodb server is running, enter the below in another command prompt window. If MongoDB is running, you will see a process named mongod.exe listed in the output, along with its PID (Process ID).
+
+```
+tasklist | findstr "mongod"
+
+```
+
+# Environment files:
+
+We are using local.env for local running, dev.env for dev docker container and prod.env for prod docker container
+common.env defines variables common to both dev and prod docker containers.
+
+# connecting to mongodb
 
 To connect to a MongoDB deployment, you need two things:
 
@@ -68,14 +109,18 @@ In  dbClient.ts below is the connection URI
 
 const uri=`mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`;
 
-MONGO_HOST is nothing but the docker service name for mongodb
-MONGO_PORT is 27017, which is default if not specified
-MONGO_Db is myApp
+The above environment variables are defined in the common.env file.
 
-There is no need to create a database before itself. myApp was not created. It got created
+MONGO_HOST is nothing but the docker service name for mongodb
+MONGO_PORT is 27017, which is default port, which the mongod process listens on ,internally in the container. It is better not to change
+the port the mongod process listens on. Let the container port always be 27017. The host port needs to be changed if you have multiple
+docker containers for mongodb within the same host.
+MONGO_Db is myProductApp
+
+There is no need to create a database before itself. myProductApp was not created. It got created
 automatically on the first connection since it didnt exist.
 
-myApp is the database. In this example, we are creating a products collection in this database.
+myProductApp is the database. In this example, we are creating a products collection in this database.
 The collection again not explicitly created.
 
 Since the schema model name was Product, the collection name has become the plural lowercase version of the model name :products. Each collection will have its mongoose schema.
@@ -85,88 +130,16 @@ export default mongoose.model("Product",productSchema);
 
 ```
 
-
-5. The MongoDB data directory is the location on the file system where MongoDB stores all of its data files, including collections, indexes, and oplog (for replica sets).
-Default Locations:
-Unix-like systems (Linux, macOS): /data/db
-Windows: C:\data\db (on the drive from which mongod is started, if not specified)
-
-## Project Setup
-
-First steps towards a Node Express- Mongo DB project
-
-npm init
-tsc --init
-git init
-
-npm install --save-dev typescript @types/node @types/express dotenv ts-node nodemon
-npm install --save express
-npm install --save mongoose
-
-## Local run
-
-We are using nodemon + ts-node to run the project locally
-
-We have created a nodemon.json in the root of the project. We are using ts-node to compile the .ts files.
-Instead of node, ts-node is used. 
-
-```
-{
-    "watch": ["src"],
-    "ext": "ts,js",
-    "ignore": ["dist", "node_modules"],
-    "exec": "ts-node -r dotenv/config ./src/app.ts"
-  }
-
-```
-
-Since the location of the .env file is not in the root of the project, we need to set the value of the
-DOTENV_CONFIG_PATH environment variable to the custom path of the .env file and then executing nodemon/
-
-```
-    "local":"set DOTENV_CONFIG_PATH=./docker/.env&&nodemon",
-
-```
-
-Thus "npm run local" is used to run the project locally.
-
-## Running the application using docker
-
-```
-docker compose -p microservices -f docker/docker-compose.yml build
-
-docker compose -p microservices -f docker/docker-compose.yml up -d --remove-orphans --no-build
-
-```
-
-To build changes only in the node project and restart only node container
-This is when you already have db,nginx and node containers running but only want changes in the node express project
-to be rebuilt.
-
-```
-
-docker compose -p microservices -f docker/docker-compose.yml build node
-
-docker compose -p microservices -f docker/docker-compose.yml up -d --remove-orphans --no-build node
-
-
-```
-
-client --->nginx --->node express ---> mongo db
-
-Client will make requests to nginx on localhost:8400 which is routed to node express on 8091.
-The node express server will query the mongodb listening on port 27017, which is the default port.
-
 ## How to view the collections and documents in the database in docker container ?
 
 Once docker image is built and docker containers for db,node and nginx are up and running,
 
 In CMD,use the below  docker exec command to open an interactive mongosh session inside your running MongoDB container.
 
-mongo-container is the mongodb container name, we have  in docker compose file
+See the container name, we have in the docker compose file
 
 ```
-docker exec -it mongo-container mongosh
+docker exec -it <container-name> mongosh
 
 ```
 
@@ -181,7 +154,7 @@ show dbs
 Switch to your db
 
 ```
-use myApp
+use myProductApp
 
 ```
 
@@ -200,27 +173,298 @@ db.products.find()
 
 ```
 
-## What is an API gateway ?
 
-Microservices are made accessible to the clients via the api gateway.
-It acts as a gatekeeper orchestrating the flow of requests and responses between clients
-and backend services.
+# running in docker
 
-Functions:
+```
+DEV Build the docker image
 
-1. API routing to the correct microservice
+docker compose -p cart-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml  build
 
-2. Load balancing -They distribute traffic amongst different instances of the microservice.
+docker compose -p cart-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build
 
-3. Manage authentication and enforce access control policies for user authorisation.
+PROD: Run using the already built docker image
 
-4. Security like encryption,denial of service protection and often act as web app firewall.
+docker compose -p cart-microservices-prod -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build
 
-5. Rate limiting/throttling to prevent abuse/overuse of services to ensure fair usage and system
-stability.
+```
+
+Looking at docker-compose.dev.override.yml for db
+
+```
+ product-db:
+      ports:
+         - 27017:27017
+      networks:
+       - mynetwork-dev
+```
+
+Looking at docker-compose.prod.override.yml
+
+```
+  product-db:
+      ports:
+         - 27016:27017
+      networks:
+       - mynetwork-prod
+```
+
+In the docker compose file, the container port(RHS) must be the port on which the mongod process within the container is listening on. This
+port will always be 27017 so the container port(RHS) must also be 27017, unless you are changing the port on which the mongod process
+itself listens on(which is very unncessary)
+The host port (LHS) is 27017 which means that mongo db will be accessible on port 27017 of host machine for dev container
+For prod docker container, the host port is 27016.
+It should not be 27017 again because we already have another container mapped to
+host port 27017 on the same host. So the host port needs to be different here.
+
+Observe that we have defined 3 docker services for the express app: product-node-1, product-node-2 and product-node-3
+
+Express-gateway has the task of loadbalancing between these instances.
 
 
-6. Caching
+# SSL
+
+Only for prod docker containers, we are using ssl self signed certificates.
+
+Same rootCa certificate is used for all microservices and gateway project. That command already specified in gateway project.
+
+1. Generate private key
+openssl genrsa -out product.key 2048
+
+2. Generate CSR using private key
+openssl req -key product.key -new -out product.csr
+
+3. Sign csr with root ca and generate .crt file using product-config.ext
+openssl x509 -req -CA rootCA.crt -CAkey rootCA.key -in product.csr -out product.crt -days 365 -CAcreateserial -extfile product-config.ext
+
+Below are the contents of the product-config.ext
+
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = localhost
+DNS.2 = product-node-1
+DNS.3 = product-node-2
+DNS.4 = product-node-3
+
+We are bind mounting these cetificates from the host onto the container
+
+```
+volumes:
+        - C:/Users/User/certificates/self-signed-custom-ca/product.key:/var/lib/certs/product.key
+        - C:/Users/User/certificates/self-signed-custom-ca/product.crt:/var/lib/certs/product.crt
+        - C:/Users/User/certificates/self-signed-custom-ca/rootCA.crt:/var/lib/certs/rootCA.crt
+```
+
+We are referencing these certificates in the src/app.ts to create a https server if the environment is "prod".
+
+```
+  if(process.env.APP_ENV === "prod"){
+    const options = {
+      key: fs.readFileSync('/var/lib/certs/product.key'), // Path to your private key
+      cert: fs.readFileSync('/var/lib/certs/product.crt')  // Path to your certificate
+  };
+    https.createServer(options, app).listen(process.env.APP_HTTP_PORT, () => {
+          winstonLogger.debug(`HTTPS server running on port ${process.env.APP_HTTP_PORT}`);
+      });
+    }
+else{
+app.listen(process.env.APP_HTTP_PORT,()=>{
+     winstonLogger.debug(`Server listening on port ${process.env.APP_HTTP_PORT}`)
+})
+}
+
+```
+
+Where is rootCA.crt used ? It is used in prod.env to set the below env variable
+
+```
+NODE_EXTRA_CA_CERTS=/var/lib/certs/rootCA.crt
+
+```
+
+The NODE_EXTRA_CA_CERTS environment variable in Node.js is used to specify an additional Certificate Authority (CA) certificate file that Node.js should trust when making HTTPS requests.
+
+Why Use NODE_EXTRA_CA_CERTS?
+By default, Node.js uses a built-in set of trusted root certificates. However, in enterprise or private environments, you might need to trust custom or internal CAs—for example:
+- Your company uses a private CA to issue certificates for internal services.
+- You're working with a self-signed certificate.
+- You need to trust a third-party CA not included in Node’s default list.
+
+When you set NODE_EXTRA_CA_CERTS, Node.js:
+- Loads the specified PEM-encoded certificate file.
+- Adds those certificates to the trust store used by TLS/HTTPS modules.
+- Applies them globally to all HTTPS requests made by your Node.js app.
+
+## Running the application using docker
+
+```
+
+DEV
+docker compose -p product-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml  build
+
+docker compose -p product-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build
+
+PROD: run using the already built docker image
+
+docker compose -p product-microservices-prod -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build
+
+```
+
+To build changes only in the node project and restart only node container
+This is when you already have db,nginx and node containers running but only want changes in the node express project
+to be rebuilt.
+
+```
+docker compose -p product-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml build product-node-1 product-node-2 product-node-3
+
+```
+
+# Logging
+
+Using winston + morgan for logging
+
+npm i --save winston morgan
+npm i --save-dev @types/morgan
+
+set LOG_LEVEL=debug in local.env and common.env for usage in winstonLogger.js
+If you dont set this, even debug logs appear as info.
+
+As mentioned earlier, morgan is used for logging http requests and winston is a more genralised logger.
+
+In src/logger, we have 2 files for winston and logger respectively.
+
+Locally we are using combined.log and error.log in the root to store info+debug and error messages
+respectively.
+
+In docker, check the below variables set in common.env. The paths are different
+
+```
+stdoutPath=/var/log/productmicrosvcs/combined.log
+stderrPath=/var/log/productmicrosvcs/error.log
+
+```
+
+Also in order to integrate this with ELK, we have done few more steps
+
+1. Observe the filebeat folder in the root. Each microservice has the filebeat configured to pick up
+the log messages from configured path, send them to logstash, which in turn sends them to elastic search. 
+Kibana provides a visual display.
+
+2. Logstash,Elastic Search and Kibana are configured in a seperate project. But filebeat needs to be in
+every project, where log messages need to be collect, processed and displayed in kibana.
+
+Moving to the docker-compose.yml
+
+```
+ filebeat:
+      restart: always
+      build:
+        context: ../
+        dockerfile: filebeat/Dockerfile
+      environment:
+         - strict.perms=false
+      volumes:
+         - logs-volume:/var/log/productmicrosvcs/:ro
+      networks:
+         - elk-network
+
+```
+
+In Docker, both named volumes and bind mounts are used to persist and share data between containers and the host system—but they serve different purposes and behave differently.
+Here’s a clear comparison to help you choose the right one:
+
+📦 Named Volumes
+- Managed by Docker: Stored in Docker’s internal storage (/var/lib/docker/volumes/).
+- Created by name: You can create them explicitly (docker volume create mydata) or implicitly when starting a container.
+- Portable: Easier to use across environments (e.g., dev, staging, prod).
+- Safe and isolated: Docker controls access, reducing risk of accidental deletion or modification.
+- Backups and drivers: Can be backed up easily and support volume drivers (e.g., for cloud storage).
+Use when:
+- You want Docker to manage the storage.
+- You need portability and isolation.
+- You're deploying to production or orchestrating with Docker Compose or Swarm.
+
+📂 Bind Mounts
+- Direct host path: Maps a specific file or folder from the host system into the container.
+- Full control: You can edit files directly on the host and see changes instantly in the container.
+- Less portable: Depends on host file paths, which may vary across systems.
+- More flexible: Useful for development, debugging, or sharing config files.
+Use when:
+- You need real-time access to host files (e.g., source code).
+- You're developing locally and want to see changes instantly.
+- You need to mount specific host directories.
+
+So we have created a named volume called logs-volume
+
+```
+  volumes:
+         - logs-volume:/var/log/productmicrosvcs/:ro
+```
+
+- logs-volume is a named volume managed by Docker.
+- Docker mounts this volume into the container at /var/log/productmicrosvcs/.
+- The :ro flag makes it read-only inside the container
+
+So inside the container, when it accesses /var/log/productmicrosvcs/, it's actually reading data from the logs-volume —not from a specific host directory.
+
+🧠 Key Distinction
+If you had used a bind mount like this:
+volumes:
+  - ./host-logs:/var/log/productmicrosvcs/:ro
 
 
+Then the container would be reading directly from the host path ./host-logs.
+But with a named volume (logs-volume), Docker abstracts away the host path and manages the storage internally.
 
+
+Observe that the docker service for the express app also references the named volume. The express app will write the logs using winston to the combined.log/error.log within /var/log/productmicrosvcs folder. So this also means that these logs will be available in the logs-volume.
+The filebeat service has ro access to the volume and can access the log messages.
+
+```
+ volumes:
+       - logs-volume:/var/log/productmicrosvcs
+```
+
+- logs-volume: A Docker-managed volume that stores data persistently.
+- /var/log/productmicrosvcs: The location inside the container where the volume is mounted.
+- No :ro flag: So the mount is read-write by default—the container can read from and write to this volume.
+- any logs or files written by the container to /var/log/productmicrosvcs will be stored in logs-volume.
+- This data persists even if the container is stopped or removed.
+- Multiple containers can share this volume if needed.
+
+Observe that the filebeat service is connected to an external network: elk-network. This is nothing but the network connecting
+elasticsearch,logstash and kibana services. In order to communicate with logstash and other services, filbeat needs to be connected
+to the same network.
+
+```
+networks:
+         - elk-network
+```
+
+No ports specified for filebeat in docker compose ?
+
+Filebeat is a log shipper, not a service that listens for incoming network traffic. It typically:
+- Reads log files from mounted volumes or paths.
+- Sends data out to Elasticsearch, Logstash, or other endpoints.
+Because it acts as a client, it doesn’t expose ports by default—so you don’t need to specify any ports: unless you’re doing something custom, like exposing its monitoring endpoint.
+
+So unless you're explicitly enabling monitoring or debugging, no ports is perfectly normal.
+
+In the filebeat.yml, observe the service_name field added. This field will be used in the elk project
+to differentiate between the logs of different microservices and gateways.
+
+```
+ fields:
+           event.dataset: product-microsvcs
+           service_name: product-microservice
+```
+Filebeat picks up log messages from the location specified in the path field and sends to logstash
+*.log ensures that both combined.log and error.log are picked.
+
+```
+paths:
+            - /var/log/productmicrosvcs/*.log
+
+```

@@ -1,39 +1,61 @@
 services:
-    node:
-      image: node-express
-      restart: always
-      depends_on:
-          - nginx
-          - db
-      build:
+    product-node-1:
+     env_file: 
+       - common.env
+     image: product-node-express
+     volumes:
+       - logs-volume:/var/log/productmicrosvcs/
+     restart: always
+     depends_on:
+          - product-db
+     build:
         context: ../
         dockerfile: docker/Dockerfile
-      container_name: node-express-container
-      env_file: .env
-      ports: 
-        - 8091:8091
+     networks:
+         - elk-network
+    
+    product-node-2:
+      extends:
+        service: product-node-1
+ 
+    product-node-3:
+       extends:
+        service: product-node-1
+    
 
-    nginx:
-       image: nginx:alpine
-       container_name: nginx-container
-       restart: always
-       env_file: .env
-       volumes: 
-         - ../nginx/nginx.conf:/etc/nginx/templates/default.conf.template
-       ports: 
-         - 8400:8400
-
-    db:
+    product-db:
       image: mongo:latest
-      container_name: mongo-container
       restart: always
-      ports:
-         - 27017:27017
       volumes:
          - mongo-data:/data/db
 
+    filebeat:
+      restart: always
+      build:
+        context: ../
+        dockerfile: filebeat/Dockerfile
+      environment:
+         - strict.perms=false
+      volumes:
+         - logs-volume:/var/log/productmicrosvcs/:ro
+      networks:
+         - elk-network
+
+networks:
+   mynetwork-dev:
+      name: product-microsvcs-dev-network
+      driver: bridge
+   mynetwork-prod:
+      name: product-microsvcs-prod-network
+      driver: bridge
+   elk-network:
+      name: elk-network
+      external: true
+
+
 volumes:
   mongo-data:
+  logs-volume:
 
   # In this example, mongo-data is a named volume that ensures all data written 
   # by the MongoDB container to /data/db (MongoDB's default data directory) is saved persistently 

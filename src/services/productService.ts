@@ -1,5 +1,7 @@
+import axios from "axios";
 import { CustomError } from "../app";
 import productModel, { ProductModel } from "../models/productModel";
+import https from 'https'
 
 
 export async function getAllProductsService(){
@@ -10,6 +12,17 @@ export async function getAllProductsService(){
     catch(err){
        throw new CustomError(`Error fetching products:${err}`,500);
     }
+}
+
+export async function messageToCartMicroservice(){
+  try{
+   
+    let carts= await axios.get(`${process.env.protocol}://${process.env.API_GATEWAY}:${process.env.API_GATEWAY_PORT}/${process.env.CART_MICROSERVICE_MAPPING}/carts`);
+    return carts.data
+     }
+     catch(err){
+      throw new CustomError(`Error fetching carts:${err}`,500);
+     }
 }
 
 export async function getProductDetailService(productId:string){

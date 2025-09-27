@@ -1,7 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { createProductService, deleteProductService, getAllProductsService, 
-    getProductDetailService, updateProductService } from "../services/productService";
+    getProductDetailService, messageToCartMicroservice, updateProductService } from "../services/productService";
 
+
+ export async function welcomeProductController(req:Request,res:Response,next:NextFunction){
+    res.status(200).send(`Hey You are sucessfully connected to the ProductsMicroservice in ${process.env.APP_ENV} environment 
+    on port ${process.env.APP_HTTP_PORT}.\n
+    Your API Gateway routing this request is ${process.env.API_GATEWAY} on port ${process.env.API_GATEWAY_PORT}.    
+    `);
+ }   
 
 export async function getProductsController(req:Request,res:Response,next:NextFunction){
     try{
@@ -9,8 +16,17 @@ export async function getProductsController(req:Request,res:Response,next:NextFu
     res.status(200).json({message:"Product retreived successfully",products:productsList});
     }
     catch(err){
-       console.log(err);
        next(err);
+    }
+}
+
+export async function sendMessageToCartMicroservice(req:Request,res:Response,next:NextFunction){
+    try{
+   let carts=await messageToCartMicroservice();
+   res.status(200).json({message:"Carts retreived successfully",carts:carts});
+    }
+    catch(err){
+        next(err);
     }
 }
 
@@ -20,7 +36,6 @@ export async function getProductDetailController(req:Request,res:Response,next:N
         res.status(200).json({message:"Products retreived successfully",products:product});
         }
         catch(err){
-           console.log(err);
            next(err);
         }
 }
@@ -31,7 +46,6 @@ try{
    res.status(204).json({message:"Product deleted successfully",count:deleteCount});
 }
 catch(err){
-    console.log(err);
     next(err);
 }
 
@@ -43,7 +57,6 @@ export async function createProductController(req:Request,res:Response,next:Next
      res.status(201).json({message:"Product created successfully",products:newProduct});
     }
     catch(err){
-        console.log(err);
         next(err);
     }
 }

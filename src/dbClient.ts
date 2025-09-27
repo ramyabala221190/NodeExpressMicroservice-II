@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { ConnectOptions } from 'mongoose';
-import { CustomError } from './app';
+import winstonLogger from './logger/winstonLogger';
 
 const uri=`mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`;
 /**
@@ -18,20 +18,19 @@ const dbOptions:ConnectOptions={
 export async function connect(){
     try{
     await mongoose.connect(uri,dbOptions);
-    console.log("Successfully connected to Mongo");
+    winstonLogger.debug("Successfully connected to Mongo");
     }
     catch(err){
-        console.log(err);
+        throw new Error(`Error connecting to mongo: ${err}`)
     }
 }
 
 export async function disconnect(){
 try{
    await mongoose.disconnect();
-   console.log("Successfully disconnected from Mongo");
+  winstonLogger.debug("Successfully disconnected from Mongo");
 }
 catch(err){
-    console.log(err);
     throw new Error(`Error disconnecting from mongo: ${err}`)
 }
 
