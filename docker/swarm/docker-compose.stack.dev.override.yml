@@ -1,0 +1,16 @@
+services:    
+    product-node-1:
+      env_file: 
+       - ../environments/dev.env
+      ports: 
+        - 8091
+      networks:
+       - shared-swarm-net-dev
+    
+
+    product-db:
+      ports:
+         - 27017:27017
+      networks:
+       - shared-swarm-net-dev
+

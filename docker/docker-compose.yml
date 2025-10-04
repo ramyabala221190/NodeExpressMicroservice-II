@@ -1,8 +1,8 @@
 services:
     product-node-1:
      env_file: 
-       - common.env
-     image: product-node-express
+       - environments/common.env
+     image: dockerenthusiast1992/product-node-express
      volumes:
        - logs-volume:/var/log/productmicrosvcs/
      restart: always
@@ -17,11 +17,15 @@ services:
     product-node-2:
       extends:
         service: product-node-1
+      env_file: 
+       - environments/common.env
+     
  
     product-node-3:
        extends:
         service: product-node-1
-    
+       env_file: 
+       - environments/common.env
 
     product-db:
       image: mongo:latest

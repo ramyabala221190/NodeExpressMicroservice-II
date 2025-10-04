@@ -1,30 +1,20 @@
 services:    
     product-node-1:
       env_file: 
-       - environments/prod.env
+       - ../environments/prod.env
       volumes:
         - C:/Users/User/certificates/self-signed-custom-ca/product.key:/var/lib/certs/product.key
         - C:/Users/User/certificates/self-signed-custom-ca/product.crt:/var/lib/certs/product.crt
         - C:/Users/User/certificates/self-signed-custom-ca/rootCA.crt:/var/lib/certs/rootCA.crt
-      expose: 
+      ports: 
         - 8095
       networks:
-       - mynetwork-prod
+       - shared-swarm-net-prod
     
-    product-node-2:
-       extends:
-        service: product-node-1
-       env_file: 
-        - environments/prod.env
-
-    product-node-3:
-       extends:
-        service: product-node-1
-       env_file: 
-        - environments/prod.env
    
     product-db:
       ports:
          - 27016:27017
       networks:
-       - mynetwork-prod
+       - shared-swarm-net-prod
+

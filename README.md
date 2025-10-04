@@ -1,3 +1,46 @@
+# application flow
+
+Local flow:
+
+client <---> express-gateway <---> cart/product microservice <--->mongodb
+
+docker flow:
+
+client <----> nginx <---> express-gateway <----> cart/product microservice <---> mongodb
+
+Here nginx acts a reverse proxy and load balances multiple instances of express-gateway
+Express-gateway is for routing requests to the correct microservice and also load balancing between the different instances of
+the cart and product microservice.
+
+nginx acts as edge gateway and express-gateway acts as api gateway
+
+### 🧭 API Gateway vs Edge Gateway
+
+| Feature                  | **API Gateway**                                         | **Edge Gateway**                                         |
+|--------------------------|---------------------------------------------------------|----------------------------------------------------------|
+| **Primary Role**         | Manages API traffic between clients and services        | Manages all traffic entering the network or cluster      |
+| **Scope**                | Focused on APIs and microservices                       | Broader scope: APIs, web apps, static content, etc.      |
+| **Location**             | Sits between client and backend APIs                    | Sits at the network edge, often before API gateway       |
+| **Functions**            | Authentication, rate limiting, routing, caching         | SSL termination, load balancing, firewall, DDoS protection |
+| **Protocols**            | Mostly HTTP/HTTPS, REST, GraphQL                        | Supports HTTP, TCP, UDP, TLS, and more                   |
+| **Examples**             | Kong, Express Gateway, Apigee, AWS API Gateway          | NGINX, Envoy, Cloudflare Gateway, NGINX Gateway Fabric   |
+| **Use Case**             | API management and developer control                    | Network-level security and traffic control               |
+
+---
+
+### 🧠 How They Work Together
+
+In many setups, **edge gateways and API gateways are layered**:
+
+```
+Client → Edge Gateway (NGINX) → API Gateway (Express Gateway) → Microservices
+```
+
+- **Edge Gateway** handles TLS, load balancing, and basic routing.
+- **API Gateway** enforces API-specific policies like JWT auth, quotas, and versioning.
+
+
+
 # running locally
 
 First steps towards a Node Express- Mongo DB project
@@ -176,6 +219,27 @@ db.products.find()
 
 # running in docker
 
+Observe the docker-compose.dev.override.yml and docker-compose.prod.override.yml.
+
+For product-node-1,product-node-2 and product-node-3, we have used expose instead of ports.
+This ensures that only the containers are exposed to other containers and not externally
+We have not exposed the host ports so that it is not accessible externally in the browser.
+
+Also note that product-node-1,product-node-2 and product-node-3 have same container port.
+Since they are not going to be accessed directly in the browser, we need not bother about host port.
+
+But if they had to be accessed in the browser, the host ports need to be different for the 3.
+Container ports can remain the same.
+
+Note: the extends keyword does not consider env_file or environment fields. So you need to specify them
+for product-node-2 and product-node-3 as well. They wont be extended automatically from product-node-1
+
+### 🧠 When to Use This
+
+- Microservices architecture where docker services talk to each other internally.
+- You want to keep services private and secure.
+- You’re using a reverse proxy like nginx + express-gatway to route the client requests to the correct microservice
+
 ```
 DEV Build the docker image
 
@@ -224,7 +288,7 @@ Express-gateway has the task of loadbalancing between these instances.
 
 # SSL
 
-Only for prod docker containers, we are using ssl self signed certificates.
+Only for prod docker containers, we are using ssl self signed certificates for gateways and microservices.
 
 Same rootCa certificate is used for all microservices and gateway project. That command already specified in gateway project.
 
@@ -237,7 +301,7 @@ openssl req -key product.key -new -out product.csr
 3. Sign csr with root ca and generate .crt file using product-config.ext
 openssl x509 -req -CA rootCA.crt -CAkey rootCA.key -in product.csr -out product.crt -days 365 -CAcreateserial -extfile product-config.ext
 
-Below are the contents of the product-config.ext
+Below are the contents of the product-config.ext. Observe that the docker service names are also there in the subjectAltName.
 
 authorityKeyIdentifier=keyid,issuer
 basicConstraints=CA:FALSE
@@ -247,6 +311,45 @@ DNS.1 = localhost
 DNS.2 = product-node-1
 DNS.3 = product-node-2
 DNS.4 = product-node-3
+
+
+
+### 🐳 Docker Service Names as Hostnames
+
+In Docker networks, each service is automatically assigned a DNS name that matches its **service name**. So when a microservice sends a request using `axios` like this:
+
+```js
+axios.get('http://nginx-service/api/data')
+```
+
+…it’s actually resolving `nginx-service` via Docker’s internal DNS to the container running NGINX.
+
+---
+
+### 🔐 SSL Implications
+
+If you're using **HTTPS** and the request is:
+
+```js
+axios.get('https://nginx-service/api/data')
+```
+
+then the SSL certificate presented by NGINX must match `nginx-service`—or the request will fail with a **certificate mismatch error**.
+
+#### ✅ Solutions:
+- **Use a self-signed certificate** with `nginx-service` as a Subject Alternative Name (SAN).
+- Or, configure NGINX to respond to a **real domain name** (e.g., `api.example.com`) and use that in your request.
+- Alternatively, use **HTTP internally** and terminate SSL at the edge (e.g., for external traffic only).
+
+---
+
+### 🧠 Best Practice
+
+- Use **Docker service names** for internal routing.
+- Use **domain names** for external access and SSL.
+- If SSL is needed internally, ensure your cert includes the Docker service name in its SAN.
+
+
 
 We are bind mounting these cetificates from the host onto the container
 
@@ -468,3 +571,11 @@ paths:
             - /var/log/productmicrosvcs/*.log
 
 ```
+
+# Caching
+
+There are multiple lib's available for caching in express:
+
+1. apicache - caching api responses
+2. memcache - large scale distributed caching across multiple servers
+3. node-cache - caching arbitrary data like configs
