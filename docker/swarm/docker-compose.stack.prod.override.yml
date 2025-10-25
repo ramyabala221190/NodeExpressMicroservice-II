@@ -7,7 +7,7 @@ services:
         - C:/Users/User/certificates/self-signed-custom-ca/product.crt:/var/lib/certs/product.crt
         - C:/Users/User/certificates/self-signed-custom-ca/rootCA.crt:/var/lib/certs/rootCA.crt
       ports: 
-        - 8095
+        - 8095:8095
       networks:
        - shared-swarm-net-prod
     
@@ -17,4 +17,8 @@ services:
          - 27016:27017
       networks:
        - shared-swarm-net-prod
+
+    filebeat:
+      networks:
+         - shared-swarm-net-prod
 

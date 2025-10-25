@@ -1,9 +1,9 @@
 services:    
-    product-node-1:
+    product-node:
       env_file: 
        - ../environments/dev.env
       ports: 
-        - 8091
+        - 8091:8091
       networks:
        - shared-swarm-net-dev
     
@@ -13,4 +13,8 @@ services:
          - 27017:27017
       networks:
        - shared-swarm-net-dev
+
+    filebeat:
+      networks:
+         - shared-swarm-net-dev
 

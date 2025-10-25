@@ -35,6 +35,7 @@ services:
 
     filebeat:
       restart: always
+      image: dockerenthusiast1992/productmicrosvcs-filebeat
       build:
         context: ../
         dockerfile: filebeat/Dockerfile
