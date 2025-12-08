@@ -15,6 +15,11 @@ jobs:
        steps:
           - name: Checkout repository
             uses: actions/checkout@v4
+            run: |
+              echo "current directory before changing"
+              pwd
+              echo "Listing contents of directory"
+              ls -la
 
           - name: Get current timestamp to be used in the tag
             id: get_time
@@ -30,8 +35,9 @@ jobs:
           - name: Build Docker image
             uses: docker/build-push-action@v5
             with:
-              push: true
-              context: ./docker
+              push: true  # so that image is pushed to Dockerhub as well
+              context: .   # this ensures the paths in the Dockerfile work as expected
+              file: ./docker/Dockerfile  # this ensures the Dockerfile is located in the correct folder
               tags: ${{vars.DOCKERHUB_USERNAME}}/${{vars.APP_NAME}}:${{github.event.inputs.environment}}-${{ steps.get_time.outputs.current_time }}
 
             
