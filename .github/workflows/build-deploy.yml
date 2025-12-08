@@ -14,16 +14,16 @@ jobs:
 
        steps:
           - name: Checkout repository
-            uses: actions/checkout@v4
+            uses: actions/checkout@v4             
+
+          - name: Get current timestamp to be used in the tag
+            id: get_time
             run: |
+              echo "current_time=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
               echo "current directory before changing"
               pwd
               echo "Listing contents of directory"
               ls -la
-
-          - name: Get current timestamp to be used in the tag
-            id: get_time
-            run: echo "current_time=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
           
           - name: Login to DockerHub
             uses: docker/login-action@v3
