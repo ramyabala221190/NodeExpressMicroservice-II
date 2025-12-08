@@ -1,24 +1,26 @@
 import express from "express";
-import { createProductController, deleteProductController, getProductDetailController, 
-    getProductsController, sendMessageToCartMicroservice, updateProductController, welcomeProductController } from "../controllers/productController";
+// import { createProductController, deleteProductController, getProductDetailController, 
+//     getProductsController, sendMessageToCartMicroservice, updateProductController, welcomeProductController } from "../controllers/productController";
+
+import productController from "../controllers/productController";
 
 const productRouter= express.Router();
 
 
 productRouter.route('/')
-.get(welcomeProductController);
+.get(productController.welcomeProductController);
 
 productRouter.route('/carts')
-.get(sendMessageToCartMicroservice);
+.get(productController.sendMessageToCartMicroservice);
 
 productRouter.route('/products')
-.get(getProductsController)
-.post(createProductController);
+.get(productController.getProductsController)
+.post(productController.createProductController);
 
 productRouter.route('/products/:id')
-.get(getProductDetailController)
-.delete(deleteProductController)
-.put(updateProductController);
+.get(productController.getProductDetailController)
+.delete(productController.deleteProductController)
+.put(productController.updateProductController);
 
 
 export default productRouter;
