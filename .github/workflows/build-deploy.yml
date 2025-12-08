@@ -31,7 +31,7 @@ jobs:
             uses: docker/build-push-action@v5
             with:
               push: true
-              context: /docker/
+              context: ./docker
               file: Dockerfile
               tags: ${{vars.DOCKERHUB_USERNAME}}/${{vars.APP_NAME}}:${{github.event.inputs.environment}}-${{ steps.get_time.outputs.current_time }}
 
