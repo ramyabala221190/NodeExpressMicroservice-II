@@ -572,6 +572,12 @@ paths:
 
 ```
 
+Given your architecture (microservices + Filebeat + external network):
+
+✅ Deploy ELK once and keep it running ✅ Deploy microservices independently ✅ Ensure the external network exists before deploying microservices
+
+This gives you clean logs, stable pipelines, and simpler deployments.
+
 # Caching
 
 There are multiple lib's available for caching in express:
@@ -579,3 +585,40 @@ There are multiple lib's available for caching in express:
 1. apicache - caching api responses
 2. memcache - large scale distributed caching across multiple servers
 3. node-cache - caching arbitrary data like configs
+
+## Github actions
+
+Github actions are defined in the .github/workflows folder in the root of the project.
+We have defined only 1 workflow in the build-deploy.yml file within the .github/workflows folder.
+We are using it as a CI/CD tool to build and push docker images to docker hub registry and
+also pull the images and run the docker containers in the remote server using ssh.
+
+In each repo of express-gateway, cart and product microserivce and elk stack, go to
+Settings ---> Security and Variables --->Actions
+
+We can here set the secrets and variables for the repo.
+These are accessed in the workflow file as  ${{vars.variable_name}} and ${{secrets.variable_name}}
+These can be only accessed within the workflow file.
+To access them in other files, we need to expose them as environment variables.
+
+```
+env:
+ # github secrets and vars are only accessible within workflow. To access it within compose/other files, expose it as env variable
+ DOCKERHUB_USER: ${{vars.DOCKERHUB_USERNAME}}
+ APPNAME: ${{vars.APP_NAME}}
+```
+
+We have then accessed them in docker-compose.yml file
+
+Note that just running "docker compose up" will create containers within the Github runner and not
+in docker desktop. You can create containers in docker desktop this way.
+You need to ssh into a remote server, pull the images and then do a "docker compose up".
+
+Environment variables can be accessed at workflow level, job level and step level.
+In the workflow level, the env variables set can be accessed anywhere within the workflow.
+In the job level, the env variables set can be accessed within any step in the same job.
+At step level, the env variables set can be accessed only within the step.
+They can be accessed using the syntax ${{env.variable_name}}
+
+We have used workflow_dispatch to manually run the workflow from the Actions tab in the repo.
+

@@ -2,9 +2,9 @@ services:
     product-node-1:
      env_file: 
        - environments/common.env
-     image: dockerenthusiast1992/product-node-express
+     image: ${DOCKERHUB_USER}/${APPNAME}:${tag}
      volumes:
-       - logs-volume:/var/log/productmicrosvcs/
+       - logs-volume:/var/log/${APPNAME}/
      restart: always
      depends_on:
           - product-db
@@ -35,23 +35,23 @@ services:
 
     filebeat:
       restart: always
-      image: dockerenthusiast1992/productmicrosvcs-filebeat
+      image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${tag}
       build:
         context: ../
         dockerfile: filebeat/Dockerfile
       environment:
          - strict.perms=false
       volumes:
-         - logs-volume:/var/log/productmicrosvcs/:ro
+         - logs-volume:/var/log/${APPNAME}/:ro
       networks:
          - elk-network
 
 networks:
    mynetwork-dev:
-      name: product-microsvcs-dev-network
+      name: ${APPNAME}-dev-network
       driver: bridge
    mynetwork-prod:
-      name: product-microsvcs-prod-network
+      name: ${APPNAME}-prod-network
       driver: bridge
    elk-network:
       name: elk-network

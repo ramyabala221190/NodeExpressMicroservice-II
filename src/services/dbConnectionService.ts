@@ -1,11 +1,11 @@
 import { CustomError } from "../app";
 import { products } from "../data/seedData";
-import { connect } from "../dbClient";
+import dbClient from "../dbClient";
 import productModel from "../models/productModel";
 
 export async function connectToDb(){
     try{
-    await connect();
+    await dbClient.connect();
     await loadProducts();
     }
     catch(err){

@@ -2,22 +2,24 @@ import * as mongoose from 'mongoose';
 import { ConnectOptions } from 'mongoose';
 import winstonLogger from './logger/winstonLogger';
 
-const uri=`mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`;
+class DBClient{
+
+private uri:string=`mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`;
 /**
  * mongodb://  A prefix that identifies this as a string in the standard connection format.
  * db:27017 is the host:port
  * myApp is a collection
  */
 
-const dbOptions:ConnectOptions={
+private dbOptions:ConnectOptions={
     serverSelectionTimeoutMS:5000,
     socketTimeoutMS:45000,
     autoIndex:true //tells mongoose to auto manage the id properties on the documents we create
 }
 
-export async function connect(){
+async connect(){
     try{
-    await mongoose.connect(uri,dbOptions);
+    await mongoose.connect(this.uri,this.dbOptions);
     winstonLogger.debug("Successfully connected to Mongo");
     }
     catch(err){
@@ -25,7 +27,7 @@ export async function connect(){
     }
 }
 
-export async function disconnect(){
+async  disconnect(){
 try{
    await mongoose.disconnect();
   winstonLogger.debug("Successfully disconnected from Mongo");
@@ -36,4 +38,9 @@ catch(err){
 
 
 }
+
+
+}
+
+export default new DBClient();
 
