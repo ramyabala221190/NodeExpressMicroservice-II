@@ -2,12 +2,14 @@ services:
     product-node-1:
      env_file: 
        - environments/common.env
-     image: ${DOCKERHUB_USER}/${APPNAME}:${TAG}
      volumes:
        - logs-volume:/var/log/${APPNAME}/
      restart: always
      depends_on:
           - product-db
+     build:
+        context: ../
+        dockerfile: docker/Dockerfile
    
     product-node-2:
       extends:

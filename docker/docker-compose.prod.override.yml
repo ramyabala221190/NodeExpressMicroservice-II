@@ -1,7 +1,7 @@
 services:    
     product-node-1:
       env_file: 
-       - environments/prod.env
+       - environments/${TARGETENV}.env
       volumes:
         - C:/Users/User/certificates/self-signed-custom-ca/product.key:/var/lib/certs/product.key
         - C:/Users/User/certificates/self-signed-custom-ca/product.crt:/var/lib/certs/product.crt
@@ -15,13 +15,13 @@ services:
        extends:
         service: product-node-1
        env_file: 
-        - environments/prod.env
+        - environments/${TARGETENV}.env
 
     product-node-3:
        extends:
         service: product-node-1
        env_file: 
-        - environments/prod.env
+        - environments/${TARGETENV}.env
    
     product-db:
       ports:

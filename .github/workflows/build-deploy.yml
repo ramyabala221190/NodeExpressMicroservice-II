@@ -21,8 +21,9 @@ env:
  # github secrets and vars are only accessible within workflow. To access it within compose/other files, expose it as env variable
  DOCKERHUB_USER: ${{vars.DOCKERHUB_USERNAME}}
  APPNAME: ${{vars.APP_NAME}}
+ TARGETENV: ${{ github.event.inputs.environment }}
  var1: This is workflow level env var accessible in the entire workflow
- tag: ${{ github.run_id }}  # we are setting a workflow level env variable. It could also be job level
+ TAG: ${{ github.run_id }}  # we are setting a workflow level env variable. It could also be job level
  # So that it can be accessed in the docker compose file.
 
 jobs:
@@ -58,7 +59,7 @@ jobs:
           # we verify the value of the env variables
             run: |
               # env.var3 will be empty because its set at step level
-              echo "${{env.var1}}" "${{env.var2}}" "${{env.var3}}" "${{env.tag}}"
+              echo "${{env.var1}}" "${{env.var2}}" "${{env.var3}}" "${{env.TAG}}"
               echo "${{github.event.inputs.environment}}"
                         
 
@@ -75,18 +76,12 @@ jobs:
           - name: Build Docker image
           # executed only for dev
             if: ${{ github.event.inputs.environment == 'dev' }}
-            run: |
-              docker compose \
-              -p ${{vars.APP_NAME}}-${{ github.event.inputs.environment }} \
-              -f docker/docker-compose.yml \
-              -f docker/docker-compose.${{ github.event.inputs.environment }}.override.yml \
-              build
-            # uses: docker/build-push-action@v5
-            # with:
-            #   push: true  # so that image is pushed to Dockerhub as well
-            #   context: .   # this ensures the paths in the Dockerfile work as expected
-            #   file: ./docker/Dockerfile  # this ensures the Dockerfile is located in the correct folder
-            #   tags: ${{vars.DOCKERHUB_USERNAME}}/${{vars.APP_NAME}}:${{env.tag}}
+            uses: docker/build-push-action@v5
+            with:
+              push: true  # so that image is pushed to Dockerhub as well
+              context: .   # this ensures the paths in the Dockerfile work as expected
+              file: ./docker/Dockerfile  # this ensures the Dockerfile is located in the correct folder
+              tags: ${{vars.DOCKERHUB_USERNAME}}/${{vars.APP_NAME}}:${{env.TAG}}
           
           # - name: Run using compose
           # # this will create containers in the github runner and will destroy them once workflow ends. no containers are created in docker desktop

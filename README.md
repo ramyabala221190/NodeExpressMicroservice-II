@@ -241,15 +241,21 @@ for product-node-2 and product-node-3 as well. They wont be extended automatical
 - You’re using a reverse proxy like nginx + express-gatway to route the client requests to the correct microservice
 
 ```
-DEV Build the docker image
+```
 
-docker compose -p cart-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml  build
+Used cross-env npm package for local docker builds
+cross-env package helps to pass environment varibles in the npm script
+If we pass using "set", compose file is unable to detect it.
+So go for cross-env
 
-docker compose -p cart-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build
+So we build the docker image once for dev.
+We use the same image to bring the dev and prod containers up.
 
-PROD: Run using the already built docker image
+ "docker-local-dev-build": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env  -p product-node-express-local-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml  build",
+    "docker-local-dev-up": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env -p product-node-express-local-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build",
+    "docker-local-prod-up": "cross-env TARGETENV=prod docker compose --env-file docker/environments/local.env -p product-node-express-local-prod -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build"
 
-docker compose -p cart-microservices-prod -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build
+```
 
 ```
 
@@ -621,4 +627,28 @@ At step level, the env variables set can be accessed only within the step.
 They can be accessed using the syntax ${{env.variable_name}}
 
 We have used workflow_dispatch to manually run the workflow from the Actions tab in the repo.
+
+## Seperate docker compose file for local and deployment
+
+Build only the services that have Dockerfiles
+Build each microservice once, not per replica
+Let Docker Compose pull the images
+Remove build: from all services in Compose except during local dev
+CI/CD should build → push → deploy, not rebuild on the server
+
+We will keep seperate docker files for local development and deployment:
+docker-compose.yml for deployment and docker-compose.local.yml for local development.
+
+For a service, we should not have both image and build fields.
+In docker-compose.yml, keep the image field, so that the already built image(using github actions)
+can be pulled.
+Github actions/Jenkins must be used to build docker images only for services with Dockerfiles.
+For the remaining like mongo,elasticsearch etc, the images just needs to be pulled.
+
+In docker-compose.local.yml, keep the build field to build the image using the Dockerfile
+and use the same image for the extended services as well.
+
+
+
+
 

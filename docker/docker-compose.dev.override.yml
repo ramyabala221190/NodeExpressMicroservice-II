@@ -1,7 +1,7 @@
 services:    
     product-node-1:
       env_file: 
-       - environments/dev.env
+       - environments/${TARGETENV}.env
       expose: 
         - 8091
       networks:
@@ -11,13 +11,13 @@ services:
        extends:
         service: product-node-1
        env_file: 
-        - environments/dev.env
+        - environments/${TARGETENV}.env
 
     product-node-3:
        extends:
         service: product-node-1
        env_file: 
-          - environments/dev.env
+          - environments/${TARGETENV}.env
 
     
     product-db:
