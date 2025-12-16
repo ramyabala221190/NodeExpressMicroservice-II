@@ -2,6 +2,9 @@ services:
     product-node-1:
      env_file: 
        - environments/common.env
+     environment:
+        - stdoutPath=/var/log/${APPNAME}/combined.log
+        - stderrPath=/var/log/${APPNAME}/error.log
      image: ${DOCKERHUB_USER}/${APPNAME}:${TAG}
      volumes:
        - logs-volume:/var/log/${APPNAME}/
