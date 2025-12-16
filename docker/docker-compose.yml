@@ -33,6 +33,7 @@ services:
       image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${TAG}
       environment:
          - strict.perms=false
+         - APPNAME=${APPNAME}
       volumes:
          - logs-volume:/var/log/${APPNAME}/:ro
       networks:
