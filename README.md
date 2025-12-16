@@ -137,8 +137,12 @@ tasklist | findstr "mongod"
 
 # Environment files:
 
-We are using local.env for local running, dev.env for dev docker container and prod.env for prod docker container
-common.env defines variables common to both dev and prod docker containers.
+We are using local.env for local running without docker.
+docker/environments/dev.env for dev docker container and docker/environments/prod.env for prod docker container
+docker/environments/common.env defines variables common to both dev and prod docker containers.
+
+We are also using docker/environments/local.env when running locally using docker. This provides additional info like
+docker tag, dockerhub username etc. Based on whether environment is dev/prod, the dev.env/ prod.env will be used in the override file.
 
 # connecting to mongodb
 
@@ -219,6 +223,23 @@ db.products.find()
 
 # running in docker
 
+Used cross-env npm package for local docker builds
+cross-env package helps to pass environment varibles in the npm script
+If we pass using "set", compose file is unable to detect it.
+So go for cross-env
+
+So we build the docker image once for dev.
+We use the same image to bring the dev and prod containers up. Below are the commands:
+
+```
+
+   "docker-local-dev-build": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env  -p product-node-express-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml  build",
+    "docker-local-dev-up": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env -p product-node-express-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build",
+    "docker-local-prod-up": "cross-env TARGETENV=prod docker compose --env-file docker/environments/local.env -p product-node-express-prod -f docker/docker-compose.local.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build"
+
+```
+
+
 Observe the docker-compose.dev.override.yml and docker-compose.prod.override.yml.
 
 For product-node-1,product-node-2 and product-node-3, we have used expose instead of ports.
@@ -239,23 +260,6 @@ for product-node-2 and product-node-3 as well. They wont be extended automatical
 - Microservices architecture where docker services talk to each other internally.
 - You want to keep services private and secure.
 - You’re using a reverse proxy like nginx + express-gatway to route the client requests to the correct microservice
-
-```
-```
-
-Used cross-env npm package for local docker builds
-cross-env package helps to pass environment varibles in the npm script
-If we pass using "set", compose file is unable to detect it.
-So go for cross-env
-
-So we build the docker image once for dev.
-We use the same image to bring the dev and prod containers up.
-
- "docker-local-dev-build": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env  -p product-node-express-local-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml  build",
-    "docker-local-dev-up": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env -p product-node-express-local-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build",
-    "docker-local-prod-up": "cross-env TARGETENV=prod docker compose --env-file docker/environments/local.env -p product-node-express-local-prod -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build"
-
-```
 
 ```
 
@@ -291,8 +295,28 @@ Observe that we have defined 3 docker services for the express app: product-node
 
 Express-gateway has the task of loadbalancing between these instances.
 
+## Seperate docker compose file for local and deployment
 
-# SSL
+### Important points related to deployment:
+=>Build only the services that have Dockerfiles
+=>Build each microservice once, not per replica
+=>CI/CD should build → push → deploy, not rebuild on the server
+=>Let Docker Compose pull the images in the remote server.
+
+We will keep seperate docker files for local development and deployment:
+docker-compose.yml for deployment and docker-compose.local.yml for local docker testing.
+
+For a service, we should not have both image and build fields.
+In docker-compose.yml, keep the image field, so that the already built and pushed image(using github actions)
+can be pulled on the remote server.
+Github actions/Jenkins must be used to build docker images only for docker services with Dockerfiles.
+For the remaining like mongo,elasticsearch etc, the images just needs to be pulled in the remote server
+using compose.
+
+In docker-compose.local.yml, keep the build field to build the image using the Dockerfile for local testing, and use the same image for the extended services as well.
+
+
+### SSL
 
 Only for prod docker containers, we are using ssl self signed certificates for gateways and microservices.
 
@@ -605,7 +629,14 @@ Settings ---> Security and Variables --->Actions
 We can here set the secrets and variables for the repo.
 These are accessed in the workflow file as  ${{vars.variable_name}} and ${{secrets.variable_name}}
 These can be only accessed within the workflow file.
-To access them in other files, we need to expose them as environment variables.
+To access them in other files, we need to expose them as environment variables. Ensure they are in uppercase in case
+they are to be used in docker compose
+
+Environment variables can be accessed at workflow level, job level and step level.
+In the workflow level, the env variables set can be accessed anywhere within the workflow.
+In the job level, the env variables set can be accessed within any step in the same job.
+At step level, the env variables set can be accessed only within the step.
+They can be accessed using the syntax ${{env.variable_name}}
 
 ```
 env:
@@ -620,35 +651,95 @@ Note that just running "docker compose up" will create containers within the Git
 in docker desktop. You can create containers in docker desktop this way.
 You need to ssh into a remote server, pull the images and then do a "docker compose up".
 
-Environment variables can be accessed at workflow level, job level and step level.
-In the workflow level, the env variables set can be accessed anywhere within the workflow.
-In the job level, the env variables set can be accessed within any step in the same job.
-At step level, the env variables set can be accessed only within the step.
-They can be accessed using the syntax ${{env.variable_name}}
+We have used workflow_dispatch to manually run the workflow from the Actions tab in the repo. We are also allowing
+the user to provide the target environment and an optional docker tag for prod environment.
 
-We have used workflow_dispatch to manually run the workflow from the Actions tab in the repo.
-
-## Seperate docker compose file for local and deployment
-
-Build only the services that have Dockerfiles
-Build each microservice once, not per replica
-Let Docker Compose pull the images
-Remove build: from all services in Compose except during local dev
-CI/CD should build → push → deploy, not rebuild on the server
-
-We will keep seperate docker files for local development and deployment:
-docker-compose.yml for deployment and docker-compose.local.yml for local development.
-
-For a service, we should not have both image and build fields.
-In docker-compose.yml, keep the image field, so that the already built image(using github actions)
-can be pulled.
-Github actions/Jenkins must be used to build docker images only for services with Dockerfiles.
-For the remaining like mongo,elasticsearch etc, the images just needs to be pulled.
-
-In docker-compose.local.yml, keep the build field to build the image using the Dockerfile
-and use the same image for the extended services as well.
+```
+on: 
+ workflow_dispatch:
+   inputs:
+     environment:
+        type: choice
+        description: "Specify the environment(dev or prod)"
+        options:
+          - dev
+          - prod
+        required: true
+        default: 'dev'
+      
+     tag:
+      description: "Specify the image tag to be pulled for prod"
+      required: false
 
 
+```
+
+The first step in the "build-and-deploy" job is to to checkout the git repo using an inbuilt action: actions/checkout@v4
+
+```
+ - name: Checkout repository
+            uses: actions/checkout@v4 
+            env:
+             var3: This is step level env var accessible only in this step  
+        
+
+```
+
+The next step is to check if the target environment is prod and the tag is provided. If tag not provided , throw an error
 
 
+```
+ - name: Validate PROD inputs
+          # for prod deployments the tag input from the user must not be empty. -z does the empty string check
+            run: |
+             if [[ "${{ github.event.inputs.environment }}" == "prod" && -z "${{ github.event.inputs.tag }}" ]]; then
+             echo "ERROR: tag is required for PROD deployments"
+             exit 1
+             fi
+          
+```
 
+In the next step, we are overwriting the value of the TAG environment variable with the user provided tag, in case the target
+enviornment is production.
+
+```
+ - name: Set conditional env
+          # for prod we overwriting the value of the tab env variable to the tag input provided by the user.
+            run: |
+             if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
+             echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+             fi
+
+```
+
+Next, we are logging into dockerhub using inbuilt action docker/login-action@v3 with provided parameters: username, password.
+This is only for dev environment
+
+```
+ - name: Login to DockerHub
+          # executed only for dev
+            if: ${{ github.event.inputs.environment == 'dev' }}
+            uses: docker/login-action@v3
+            with:
+              username: ${{vars.DOCKERHUB_USERNAME}}
+              password: ${{secrets.DOCKERHUB_PASSWORD}}
+              # added the dockerhub username as repo variable and password as repo secret
+
+```
+
+Next ,we are building the docker image for services that use dockerfiles and push them to dockerhub
+This is only for dev environment
+
+```
+   - name: Build Docker image
+          # executed only for dev
+            if: ${{ github.event.inputs.environment == 'dev' }}
+            uses: docker/build-push-action@v5
+            with:
+              push: true  # so that image is pushed to Dockerhub as well
+              context: .   # this ensures the paths in the Dockerfile work as expected
+              file: ./docker/Dockerfile  # this ensures the Dockerfile is located in the correct folder
+              tags: ${{vars.DOCKERHUB_USERNAME}}/${{vars.APP_NAME}}:${{env.TAG}}
+
+
+```
