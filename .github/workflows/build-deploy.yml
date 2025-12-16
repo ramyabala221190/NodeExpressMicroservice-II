@@ -19,9 +19,9 @@ on:
 
 env:
  # github secrets and vars are only accessible within workflow. To access it within compose/other files, expose it as env variable
- DOCKERHUB_USER: ${{vars.DOCKERHUB_USERNAME}}
- APPNAME: ${{vars.APP_NAME}}
- TARGETENV: ${{ github.event.inputs.environment }}
+#  DOCKERHUB_USER: ${{vars.DOCKERHUB_USERNAME}}
+#  APPNAME: ${{vars.APP_NAME}}
+#  TARGETENV: ${{ github.event.inputs.environment }}
  var1: This is workflow level env var accessible in the entire workflow
  TAG: ${{ github.run_id }}  # we are setting a workflow level env variable. It could also be job level
  # So that it can be accessed in the docker compose file.
@@ -88,6 +88,15 @@ jobs:
           #   run: |
           #     docker compose -p product-microservices-${{github.event.inputs.environment}} -f docker/docker-compose.yml -f docker/docker-compose.${{github.event.inputs.environment}}.override.yml up -d --remove-orphans --no-build
 
+          - name: Copy compose files to VM
+            uses: appleboy/scp-action@v0.1.7
+            with:
+              host: ${{ secrets.AZURE_VM_IP }}
+              username: ${{ secrets.AZURE_VM_USER }}
+              key: ${{ secrets.AZURE_VM_SSH_KEY }}
+              source: "docker/**"
+              target: "/home/${{ secrets.AZURE_VM_USER }}/${{vars.APP_NAME}}"
+
           - name: Deploy to Azure VM
             uses: appleboy/ssh-action@v1.0.3
             # the action requires the parameters specified under with:
@@ -97,6 +106,7 @@ jobs:
              key: ${{ secrets.AZURE_VM_SSH_KEY }}  # your private key. your public key will be given to azure
              script: |
                cd /home/${{ secrets.AZURE_VM_USER }}/${{vars.APP_NAME}}
+               cat <<EOF > /home/${{ secrets.AZURE_VM_USER }}/${{vars.APP_NAME}}/docker/.env DOCKERHUB_USER=${{ vars.DOCKERHUB_USERNAME }} APPNAME=${{ vars.APP_NAME }} TAG=${{ env.TAG }} TARGETENV=${{ github.event.inputs.environment }} EOF
                docker compose \
                -p ${{vars.APP_NAME}}-${{ github.event.inputs.environment }} \
                -f docker/docker-compose.yml \
@@ -106,6 +116,8 @@ jobs:
                -p ${{vars.APP_NAME}}-${{ github.event.inputs.environment }} \
                -f docker/docker-compose.yml \
                -f docker/docker-compose.${{ github.event.inputs.environment }}.override.yml \
-               up -d --remove-orphans --no-build  
+               up -d --remove-orphans --no-build
+
+        
             
 
