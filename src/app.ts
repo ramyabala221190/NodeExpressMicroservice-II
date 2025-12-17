@@ -50,7 +50,7 @@ app.use((error:CustomError,req:Request,res:Response,next:NextFunction)=>{
     res.status(statusCode).json({message: message ,status: statusCode})
   })
 
-  if(process.env.APP_ENV === "prod"){
+  if(process.env.APP_ENV === "localprod"){
     const options = {
       key: fs.readFileSync('/var/lib/certs/product.key'), // Path to your private key
       cert: fs.readFileSync('/var/lib/certs/product.crt')  // Path to your certificate

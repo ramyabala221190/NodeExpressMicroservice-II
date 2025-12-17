@@ -31,16 +31,16 @@ services:
       volumes:
          - mongo-data:/data/db
 
-    filebeat:
-      restart: always
-      image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${TAG}
-      environment:
-         - strict.perms=false
-         - APPNAME=${APPNAME}
-      volumes:
-         - logs-volume:/var/log/${APPNAME}/:ro
-      networks:
-         - elk-network
+   #  filebeat:
+   #    restart: always
+   #    image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${TAG}
+   #    environment:
+   #       - strict.perms=false
+   #       - APPNAME=${APPNAME}
+   #    volumes:
+   #       - logs-volume:/var/log/${APPNAME}/:ro
+   #    networks:
+   #       - elk-network
 
 networks:
    mynetwork-dev:
@@ -49,9 +49,9 @@ networks:
    mynetwork-prod:
       name: product-node-express-prod-network
       driver: bridge
-   elk-network:
-      name: elk-network
-      external: true
+   # elk-network:
+   #    name: elk-network
+   #    external: true
 
 
 volumes:
