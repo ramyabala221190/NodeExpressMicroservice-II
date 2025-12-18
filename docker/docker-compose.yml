@@ -1,5 +1,5 @@
 services:
-    product-node-1:
+    product-node:
      env_file: 
        - environments/common.env
      environment:
@@ -12,18 +12,18 @@ services:
      depends_on:
           - product-db
    
-    product-node-2:
-      extends:
-        service: product-node-1
-      env_file: 
-       - environments/common.env
+   #  product-node-2:
+   #    extends:
+   #      service: product-node-1
+   #    env_file: 
+   #     - environments/common.env
      
  
-    product-node-3:
-       extends:
-        service: product-node-1
-       env_file: 
-       - environments/common.env
+   #  product-node-3:
+   #     extends:
+   #      service: product-node-1
+   #     env_file: 
+   #     - environments/common.env
 
     product-db:
       image: mongo:latest

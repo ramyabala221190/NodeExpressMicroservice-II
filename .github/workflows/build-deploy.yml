@@ -134,7 +134,9 @@ jobs:
                -p ${{vars.APP_NAME}}-${{ github.event.inputs.environment }} \
                -f docker/docker-compose.yml \
                -f docker/docker-compose.${{ github.event.inputs.environment }}.override.yml \
-               up -d --remove-orphans --no-build
+               up -d --remove-orphans --no-build \
+               --scale product-node=3
+
 
         
             

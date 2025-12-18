@@ -1,5 +1,5 @@
 services:    
-    product-node-1:
+    product-node:
       env_file: 
        - environments/${TARGETENV}.env
       expose: 
@@ -7,17 +7,17 @@ services:
       networks:
        - mynetwork-dev
     
-    product-node-2:
-       extends:
-        service: product-node-1
-       env_file: 
-        - environments/${TARGETENV}.env
+   #  product-node-2:
+   #     extends:
+   #      service: product-node-1
+   #     env_file: 
+   #      - environments/${TARGETENV}.env
 
-    product-node-3:
-       extends:
-        service: product-node-1
-       env_file: 
-          - environments/${TARGETENV}.env
+   #  product-node-3:
+   #     extends:
+   #      service: product-node-1
+   #     env_file: 
+   #        - environments/${TARGETENV}.env
 
     
     product-db:
