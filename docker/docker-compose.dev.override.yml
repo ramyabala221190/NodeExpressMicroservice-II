@@ -7,18 +7,6 @@ services:
       networks:
        - mynetwork-dev
     
-   #  product-node-2:
-   #     extends:
-   #      service: product-node-1
-   #     env_file: 
-   #      - environments/${TARGETENV}.env
-
-   #  product-node-3:
-   #     extends:
-   #      service: product-node-1
-   #     env_file: 
-   #        - environments/${TARGETENV}.env
-
     
     product-db:
       ports:

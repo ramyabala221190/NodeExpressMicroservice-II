@@ -11,18 +11,6 @@ services:
         context: ../
         dockerfile: docker/Dockerfile
    
-   #  product-node-2:
-   #    extends:
-   #      service: product-node-1
-   #    env_file: 
-   #     - environments/common.env
-     
- 
-   #  product-node-3:
-   #     extends:
-   #      service: product-node-1
-   #     env_file: 
-   #     - environments/common.env
 
     product-db:
       image: mongo:latest

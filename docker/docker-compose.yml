@@ -12,18 +12,6 @@ services:
      depends_on:
           - product-db
    
-   #  product-node-2:
-   #    extends:
-   #      service: product-node-1
-   #    env_file: 
-   #     - environments/common.env
-     
- 
-   #  product-node-3:
-   #     extends:
-   #      service: product-node-1
-   #     env_file: 
-   #     - environments/common.env
 
     product-db:
       image: mongo:latest
@@ -31,16 +19,16 @@ services:
       volumes:
          - mongo-data:/data/db
 
-   #  filebeat:
-   #    restart: always
-   #    image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${TAG}
-   #    environment:
-   #       - strict.perms=false
-   #       - APPNAME=${APPNAME}
-   #    volumes:
-   #       - logs-volume:/var/log/${APPNAME}/:ro
-   #    networks:
-   #       - elk-network
+    filebeat:
+      restart: always
+      image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${TAG}
+      environment:
+         - strict.perms=false
+         - APPNAME=${APPNAME}
+      volumes:
+         - logs-volume:/var/log/${APPNAME}/:ro
+      networks:
+         - elk-network
 
 networks:
    mynetwork-dev:
@@ -49,9 +37,9 @@ networks:
    mynetwork-prod:
       name: product-node-express-prod-network
       driver: bridge
-   # elk-network:
-   #    name: elk-network
-   #    external: true
+   elk-network:
+      name: elk-network
+      external: true
 
 
 volumes:
