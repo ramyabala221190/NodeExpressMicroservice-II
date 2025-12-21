@@ -1,16 +1,92 @@
-# application flow
+# Deployment strategy
+Deploy elk before other microservices because the latter depends on the former.
+Let the former keep running.
 
-Local flow:
+We are using GitHub actions to make CI CD to Azure VM possible.
 
-client <---> express-gateway <---> cart/product microservice <--->mongodb
+The .github/workflows/build-deploy.yml contains the workflow for building the project and deploying
+to the Azure VM.
 
-docker flow:
+We have deployed all the 3 microservices and the ELK to the same VM to keep it simple.
+No docker swarm in use in this scenario.
+
+=>Build only the services that have Dockerfiles
+=>Build each microservice once, not per replica
+=>CI/CD should build → push → deploy, not rebuild on the server
+=>Let Docker Compose pull the images in the remote server and run them
+
+In the Github action, we are building images for only those docker services which use Dockerfile
+and pushing them to Dockerhub.
+Both express and nginx use Dockerfiles. So we are building docker images for these 2 services alone
+and pushing them to Dockerhub.
+The mongo services uses the inbuilt docker image. So no seperate building/pushing is required.
+Note that building and pushing for express and nginx is required when deploying to dev environment,
+followed by pulling those images in the VM.
+In prod environment, we just need to pull the already built and pushed images in the VM.
+
+
+So we are maintaining seperate docker-compose files for deployment and local run.
+The build field will be provided only in the docker-compose.local.yml and it will be omitted in the
+docker-compose.yml. 
+This is because for local run ,we need to build the image and run it in DockerDesktop.
+
+For deployment, we have a github action building and pushing the image. To pull the image in the VM,
+we just need the image name in the docker-compose.yml.
+
+Another important point to note is that the VM requires the compose and environment files in the VM
+to pull the image. It also requires the nginx config files for dynamic injection of config file based on
+deployment environment. So we have used the scp action to copy the docker folder and its contents
+to a dedicated folder in the vm.  Post this, we execute the "compose pull" and "compose up" 
+commands in the github action.
+
+```
+ - name: Copy compose files to VM
+            uses: appleboy/scp-action@v0.1.7
+            with:
+              host: ${{ secrets.AZURE_VM_IP }}
+              username: ${{ secrets.AZURE_VM_USER }}
+              key: ${{ secrets.AZURE_VM_SSH_KEY }}
+              source: "docker/**"
+              target: "/home/${{ secrets.AZURE_VM_USER }}/${{vars.APP_NAME}}"
+
+```
+
+For sending logs to ELK, we using winston to send logs to a path. Filebeat will read the logs from the file and send to logstash.
+ElasticSearch will do the indexing and send to Kibana for display.
+So the paths are extremely important.
+
+The env variables exposed throught github actions are accessible to the compose files in the github vm.
+As long as you the docker containers are running in the github vm, there is no issue.
+But when the compose files are copied to the VM, they no longer can access the environment variables exposed in the github actions.
+The compose files entirely rely on inline env variables/ env files.
+So we have to create .env file in the deploy step with the variables required to make further decisions as you see below:
+Compose will automatically pick the .env file. There is no need to specify it in the compose file.
+
+```
+  cat <<EOF > /home/${{ secrets.AZURE_VM_USER }}/${{vars.APP_NAME}}/docker/.env 
+               DOCKERHUB_USER=${{ vars.DOCKERHUB_USERNAME }} 
+               APPNAME=${{ vars.APP_NAME }} 
+               TAG=${{ env.TAG }} 
+               TARGETENV=${{ github.event.inputs.environment }} 
+               EOF
+
+```
+
+## Application flow
 
 client <----> nginx <---> express-gateway <----> cart/product microservice <---> mongodb
 
-Here nginx acts a reverse proxy and load balances multiple instances of express-gateway
-Express-gateway is for routing requests to the correct microservice and also load balancing between the different instances of
-the cart and product microservice.
+Client(browser) will send requests to nginx. Nginx acts as a reverse proxy and will also loadbalance between 3 express-gateway instances.
+The express-gateway instance to which the request is routed, will loadbalance between 3 instances of the cart and
+product microservice respectively. We have 3 instances of each microservices.
+Based on the request path, the express-gateway will decide which microservice the request needs to be routed to and will also
+loadbalance between different instances of that microservice.
+Its important to note that any communication between the microservices has to happen via  express-gateway and not nginx.
+
+Nginx only receives the client requests and forwards them to the express-gateway. The express-gateway will forward the request
+to the respective microservice. The microservice will communicate with other microservices via the express-gateway.
+
+In production, nginx will use ssl certificates to run on https connection since it is exposed to the internet. The microservices and express-gateway are not exposed to the internet. So there is no need for ssl certificates for these.
 
 nginx acts as edge gateway and express-gateway acts as api gateway
 
@@ -38,8 +114,6 @@ Client → Edge Gateway (NGINX) → API Gateway (Express Gateway) → Microservi
 
 - **Edge Gateway** handles TLS, load balancing, and basic routing.
 - **API Gateway** enforces API-specific policies like JWT auth, quotas, and versioning.
-
-
 
 # running locally
 
@@ -220,6 +294,146 @@ db.products.find()
 
 ```
 
+# Docker
+
+Lets understand the docker compose files.
+
+In the docker folder, we have a compose file for deployment and local docker container run :
+docker-compose.local.yml and docker-compose.yml.
+The override files are common to both.
+
+In docker-compose.local.yml, we do not provide the image, just the build field to build the docker
+image using the Dockerfile.
+
+In docker-compose.yml, we have just provided the image name to be pulled from Dockerhub from the target
+server. The images will be pre-built using Github actions docker/build-push-action@v5
+
+We need to have 3 instances of the product-node. Instead of providing 3 duplicates of the
+same service within the compose file, we just define 1 service with the name:product-node.
+
+When pulling the image and running the container, we provide the "--scale" to create multiple instances of the provided service.
+
+"--scale product-node=3" will create 3 instances of the product-node
+
+Below is an example for local run:
+
+```
+ "docker-local-dev-up": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env -p gateway-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build --scale product-node=3",
+```
+Same approach used for deployment as well:
+
+```
+docker compose \
+               -p ${{vars.APP_NAME}}-${{ github.event.inputs.environment }} \
+               -f docker/docker-compose.yml \
+               -f docker/docker-compose.${{ github.event.inputs.environment }}.override.yml \
+               up -d --remove-orphans --no-build \
+               --scale product-node=3
+```
+
+We always create the docker image once when deploying to dev environment and pull it from the VM for dev and prod environments for creating
+the containers.
+
+
+## 🧩 How environment variables actually work in Docker
+
+### 1. **Environment variables are available *inside the running container’s process environment***  
+A file inside the container (like an Nginx template, a Node.js script, a shell script, etc.) can access an environment variable **only if that variable exists in the container’s environment at runtime**.
+
+### 2. **How do environment variables get into the container?**  
+They can come from several sources:
+
+| Source | Does it make the variable available inside the container? |
+|--------|-----------------------------------------------------------|
+| `environment:` in `docker-compose.yml` | ✅ Yes |
+| `env_file:` in `docker-compose.yml` | ✅ Yes |
+| `docker run -e VAR=value` | ✅ Yes |
+| `docker run --env-file file.env` | ✅ Yes |
+| `ENV VAR=value` in Dockerfile | ✅ Yes (but baked into the image) |
+| Variables defined only in your host shell | ❌ No, unless passed explicitly |
+
+By convention, Docker Compose automatically looks for a file named .env in the same directory as your docker-compose.yml (or compose.yaml).
+If found, variables from this file are loaded automatically.
+You do not need to explicitly declare it with env_file: in the service definition or pass --env-file on the CLI.
+
+So **environment variables are NOT limited to only `environment:` or `env_file:`**.  
+They just need to be part of the container’s environment when it starts.
+
+### 3. **Files inside the container cannot magically read host environment variables**  
+A file like:
+
+- `/etc/nginx/templates/default.conf.template`
+- `/usr/src/app/config.js`
+- `/app/.env` (unless you copy it)
+- Any script inside the container
+
+…can only access variables that Docker injected into the container environment.
+
+### 4. **Template engines (like envsubst, Nginx templates, etc.) only see variables in the container environment**  
+If you’re using:
+
+- `envsubst`
+- Nginx’s `template` feature
+- A Node.js script reading `process.env`
+- A shell script reading `$VAR`
+
+They all rely on the container’s environment.
+
+If the variable wasn’t passed via:
+
+- `environment:`
+- `env_file:`
+- `docker run -e`
+- `ENV` in Dockerfile
+
+…it simply won’t exist.
+
+---
+
+## 🧠 The key rule  
+**A variable is accessible only if it exists in the container’s environment at runtime.**  
+How it got there doesn’t matter — but it must be injected by Docker.
+
+.env → used for Compose file substitution.
+
+environment: or env_file: or --env-file is used for container runtime environment.
+
+So any environment variables exposed from Github actions, are added to the .env file in the same folder as docker-compose in the VM.
+This ensures the compose file picks them up but they will not be available in the container.
+```
+ cat <<EOF > /home/${{env.VM_USER }}/${{vars.APP_NAME}}/docker/.env 
+               DOCKERHUB_USER=${{ vars.DOCKERHUB_USERNAME }} 
+               APPNAME=${{ vars.APP_NAME }} 
+               TAG=${{ env.TAG }} 
+               TARGETENV=${{ github.event.inputs.environment }}
+               AZURE_VM_DOMAIN=${{env.VM_DOMAIN}}
+               VM_USER=${{env.VM_USER}} 
+               EOF
+
+
+```
+
+To make them available to the files in the container, we need to re-declare them in the environment field of the service.
+
+```
+ nginx:
+       image: ${DOCKERHUB_USER}/${APPNAME}-nginx:${TAG}
+       env_file: environments/common.env
+       environment:
+         - stdoutPath=/var/log/${APPNAME}-nginx/combined.log
+         - stderrPath=/var/log/${APPNAME}-nginx/error.log
+         - AZURE_VM_DOMAIN=${AZURE_VM_DOMAIN} # exposed from github actions but must be declared here to access in conf file
+       restart: always
+       volumes:
+         - nginx-logs-volume:/var/log/${APPNAME}-nginx/
+         - /home/${VM_USER}/${APPNAME}/docker/nginx.${TARGETENV}.conf:/etc/nginx/templates/default.conf.template
+
+```
+
+So there is difference between the variables in .env file vs in environment:, --env-file and env_file.
+The last 3 will be available in the container runtime. The former will be available only to the compose file.
+So it needs to be re-declared in the environment: field.
+
 
 # running in docker
 
@@ -234,26 +448,18 @@ We use the same image to bring the dev and prod containers up. Below are the com
 ```
 
    "docker-local-dev-build": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env  -p product-node-express-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml  build",
-    "docker-local-dev-up": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env -p product-node-express-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build",
-    "docker-local-prod-up": "cross-env TARGETENV=prod docker compose --env-file docker/environments/local.env -p product-node-express-prod -f docker/docker-compose.local.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build"
+    "docker-local-dev-up": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env -p product-node-express-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build --scale product-node=3",
+    "docker-local-prod-up": "cross-env TARGETENV=prod docker compose --env-file docker/environments/local.env -p product-node-express-prod -f docker/docker-compose.local.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build --scale product-node=3"
 
 ```
 
 
-Observe the docker-compose.dev.override.yml and docker-compose.prod.override.yml.
-
-For product-node-1,product-node-2 and product-node-3, we have used expose instead of ports.
-This ensures that only the containers are exposed to other containers and not externally
+For product-node , we have used expose instead of ports field.
+This ensures that the containers are only exposed to other containers and not externally
 We have not exposed the host ports so that it is not accessible externally in the browser.
-
-Also note that product-node-1,product-node-2 and product-node-3 have same container port.
 Since they are not going to be accessed directly in the browser, we need not bother about host port.
 
-But if they had to be accessed in the browser, the host ports need to be different for the 3.
-Container ports can remain the same.
-
-Note: the extends keyword does not consider env_file or environment fields. So you need to specify them
-for product-node-2 and product-node-3 as well. They wont be extended automatically from product-node-1
+Container ports can remain the same for the 3 instances of product-node service
 
 ### 🧠 When to Use This
 
@@ -295,28 +501,7 @@ Observe that we have defined 3 docker services for the express app: product-node
 
 Express-gateway has the task of loadbalancing between these instances.
 
-## Seperate docker compose file for local and deployment
-
-### Important points related to deployment:
-=>Build only the services that have Dockerfiles
-=>Build each microservice once, not per replica
-=>CI/CD should build → push → deploy, not rebuild on the server
-=>Let Docker Compose pull the images in the remote server.
-
-We will keep seperate docker files for local development and deployment:
-docker-compose.yml for deployment and docker-compose.local.yml for local docker testing.
-
-For a service, we should not have both image and build fields.
-In docker-compose.yml, keep the image field, so that the already built and pushed image(using github actions)
-can be pulled on the remote server.
-Github actions/Jenkins must be used to build docker images only for docker services with Dockerfiles.
-For the remaining like mongo,elasticsearch etc, the images just needs to be pulled in the remote server
-using compose.
-
-In docker-compose.local.yml, keep the build field to build the image using the Dockerfile for local testing, and use the same image for the extended services as well.
-
-
-### SSL
+# SSL
 
 Only for prod docker containers, we are using ssl self signed certificates for gateways and microservices.
 
@@ -430,30 +615,6 @@ When you set NODE_EXTRA_CA_CERTS, Node.js:
 - Adds those certificates to the trust store used by TLS/HTTPS modules.
 - Applies them globally to all HTTPS requests made by your Node.js app.
 
-## Running the application using docker
-
-```
-
-DEV
-docker compose -p product-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml  build
-
-docker compose -p product-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build
-
-PROD: run using the already built docker image
-
-docker compose -p product-microservices-prod -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build
-
-```
-
-To build changes only in the node project and restart only node container
-This is when you already have db,nginx and node containers running but only want changes in the node express project
-to be rebuilt.
-
-```
-docker compose -p product-microservices-dev -f docker/docker-compose.yml -f docker/docker-compose.dev.override.yml build product-node-1 product-node-2 product-node-3
-
-```
-
 # Logging
 
 Using winston + morgan for logging
@@ -474,8 +635,8 @@ respectively.
 In docker, check the below variables set in common.env. The paths are different
 
 ```
-stdoutPath=/var/log/productmicrosvcs/combined.log
-stderrPath=/var/log/productmicrosvcs/error.log
+stdoutPath=/var/log/${APPNAME}/combined.log
+stderrPath=/var/log/${APPNAME}/error.log
 
 ```
 
@@ -499,7 +660,7 @@ Moving to the docker-compose.yml
       environment:
          - strict.perms=false
       volumes:
-         - logs-volume:/var/log/productmicrosvcs/:ro
+         - logs-volume:/var/log/${APPNAME}/:ro
       networks:
          - elk-network
 
@@ -533,37 +694,37 @@ So we have created a named volume called logs-volume
 
 ```
   volumes:
-         - logs-volume:/var/log/productmicrosvcs/:ro
+         - logs-volume:/var/log/${APPNAME}/:ro
 ```
 
 - logs-volume is a named volume managed by Docker.
-- Docker mounts this volume into the container at /var/log/productmicrosvcs/.
+- Docker mounts this volume into the container at /var/log/${APPNAME}/.
 - The :ro flag makes it read-only inside the container
 
-So inside the container, when it accesses /var/log/productmicrosvcs/, it's actually reading data from the logs-volume —not from a specific host directory.
+So inside the container, when it accesses /var/log/${APPNAME}/, it's actually reading data from the logs-volume —not from a specific host directory.
 
 🧠 Key Distinction
 If you had used a bind mount like this:
 volumes:
-  - ./host-logs:/var/log/productmicrosvcs/:ro
+  - ./host-logs:/var/log/${APPNAME}/:ro
 
 
 Then the container would be reading directly from the host path ./host-logs.
 But with a named volume (logs-volume), Docker abstracts away the host path and manages the storage internally.
 
 
-Observe that the docker service for the express app also references the named volume. The express app will write the logs using winston to the combined.log/error.log within /var/log/productmicrosvcs folder. So this also means that these logs will be available in the logs-volume.
+Observe that the docker service for the express app also references the named volume. The express app will write the logs using winston to the combined.log/error.log within /var/log/${APPNAME} folder. So this also means that these logs will be available in the logs-volume.
 The filebeat service has ro access to the volume and can access the log messages.
 
 ```
  volumes:
-       - logs-volume:/var/log/productmicrosvcs
+       - logs-volume:/var/log/${APPNAME}
 ```
 
 - logs-volume: A Docker-managed volume that stores data persistently.
-- /var/log/productmicrosvcs: The location inside the container where the volume is mounted.
+- /var/log/${APPNAME}: The location inside the container where the volume is mounted.
 - No :ro flag: So the mount is read-write by default—the container can read from and write to this volume.
-- any logs or files written by the container to /var/log/productmicrosvcs will be stored in logs-volume.
+- any logs or files written by the container to /var/log/${APPNAME} will be stored in logs-volume.
 - This data persists even if the container is stopped or removed.
 - Multiple containers can share this volume if needed.
 
@@ -590,15 +751,15 @@ to differentiate between the logs of different microservices and gateways.
 
 ```
  fields:
-           event.dataset: product-microsvcs
-           service_name: product-microservice
+           event.dataset: ${APPNAME}
+           service_name: ${APPNAME}
 ```
 Filebeat picks up log messages from the location specified in the path field and sends to logstash
 *.log ensures that both combined.log and error.log are picked.
 
 ```
 paths:
-            - /var/log/productmicrosvcs/*.log
+            - /var/log/${APPNAME}/*.log
 
 ```
 
@@ -640,12 +801,10 @@ They can be accessed using the syntax ${{env.variable_name}}
 
 ```
 env:
- # github secrets and vars are only accessible within workflow. To access it within compose/other files, expose it as env variable
  DOCKERHUB_USER: ${{vars.DOCKERHUB_USERNAME}}
  APPNAME: ${{vars.APP_NAME}}
 ```
 
-We have then accessed them in docker-compose.yml file
 
 Note that just running "docker compose up" will create containers within the Github runner and not
 in docker desktop. You can create containers in docker desktop this way.
@@ -727,7 +886,7 @@ This is only for dev environment
 
 ```
 
-Next ,we are building the docker image for services that use dockerfiles and push them to dockerhub
+Next we are building the docker image for services that use dockerfiles and push them to dockerhub
 This is only for dev environment
 
 ```
