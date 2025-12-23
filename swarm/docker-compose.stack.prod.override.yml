@@ -6,15 +6,13 @@ services:
       #   - C:/Users/User/certificates/self-signed-custom-ca/product.key:/var/lib/certs/product.key
       #   - C:/Users/User/certificates/self-signed-custom-ca/product.crt:/var/lib/certs/product.crt
       #   - C:/Users/User/certificates/self-signed-custom-ca/rootCA.crt:/var/lib/certs/rootCA.crt
-      ports: 
-        - 8095:8095
       networks:
        - shared-swarm-net-prod
     
    
     product-db:
-      ports:
-         - 27016:27017
+      # ports:
+      #    - 27016:27017
       networks:
        - shared-swarm-net-prod
 
