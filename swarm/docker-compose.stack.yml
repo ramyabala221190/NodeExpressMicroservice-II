@@ -1,16 +1,16 @@
 services:
     product-node:
      env_file: 
-       - ../environments/common.env
-     image: dockerenthusiast1992/product-node-express
+       - ../docker/environments/common.env
+     image: ${DOCKERHUB_USER}/${APPNAME}:${TAG}
      deploy:
       restart_policy:
           condition: on-failure
       replicas: 3
       placement:
-        constraints: [node.labels.role == worker2]
+        constraints: [node.labels.role == worker2 ]
      volumes:
-       - logs-volume:/var/log/productmicrosvcs/
+       - logs-volume:/var/log/${APPNAME}/
   
     product-db:
       image: mongo:latest
@@ -23,7 +23,7 @@ services:
          - mongo-data:/data/db
 
     filebeat:
-      image: dockerenthusiast1992/productmicrosvcs-filebeat
+      image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${TAG}
       deploy:
         restart_policy:
           condition: on-failure
@@ -31,8 +31,10 @@ services:
           constraints: [node.labels.role == worker2]
       environment:
          - strict.perms=false
+         - APPNAME=${APPNAME}
+
       volumes:
-         - logs-volume:/var/log/productmicrosvcs/:ro
+         - logs-volume:/var/log/${APPNAME}/:ro
 
 networks:
    shared-swarm-net-dev:

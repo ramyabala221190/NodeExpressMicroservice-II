@@ -13,9 +13,9 @@ echo Listing files in /productmicrosvcs...
 docker exec %CONTAINER_NAME% ls -l /%FOLDER_NAME%
 
 echo Copying local file into container...
-docker cp ../docker/swarm/docker-compose.stack.yml %CONTAINER_NAME%:/%FOLDER_NAME%/swarm/docker-compose.stack.yml
-docker cp ../docker/swarm/docker-compose.stack.dev.override.yml %CONTAINER_NAME%:/%FOLDER_NAME%/swarm/docker-compose.stack.dev.override.yml
-docker cp ../docker/swarm/docker-compose.stack.prod.override.yml %CONTAINER_NAME%:/%FOLDER_NAME%/swarm/docker-compose.stack.prod.override.yml
+docker cp ../swarm/docker-compose.stack.yml %CONTAINER_NAME%:/%FOLDER_NAME%/swarm/docker-compose.stack.yml
+docker cp ../swarm/docker-compose.stack.dev.override.yml %CONTAINER_NAME%:/%FOLDER_NAME%/swarm/docker-compose.stack.dev.override.yml
+docker cp ../swarm/docker-compose.stack.prod.override.yml %CONTAINER_NAME%:/%FOLDER_NAME%/swarm/docker-compose.stack.prod.override.yml
 docker cp ../docker/environments/dev.env %CONTAINER_NAME%:/%FOLDER_NAME%/environments/dev.env
 docker cp ../docker/environments/common.env %CONTAINER_NAME%:/%FOLDER_NAME%/environments/common.env
 docker cp deploy.sh %CONTAINER_NAME%:/%FOLDER_NAME%/deploy.sh
