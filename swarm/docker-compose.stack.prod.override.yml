@@ -1,5 +1,5 @@
 services:    
-    product-node-1:
+    product-node:
       env_file: 
        - ../docker/environments/prod.env
       # volumes:
