@@ -22,19 +22,18 @@ services:
       volumes:
          - mongo-data:/data/db
 
-    # filebeat:
-    #   image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${TAG}
-    #   deploy:
-    #     restart_policy:
-    #       condition: on-failure
-    #     placement:
-    #       constraints: [node.labels.role == worker2]
-    #   environment:
-    #      - strict.perms=false
-    #      - APPNAME=${APPNAME}
-
-    #   volumes:
-    #      - logs-volume:/var/log/${APPNAME}/:ro
+    filebeat:
+      image: ${DOCKERHUB_USER}/${APPNAME}-filebeat:${TAG}
+      deploy:
+        restart_policy:
+          condition: on-failure
+        placement:
+          constraints: [node.labels.role == worker2]
+      environment:
+         - strict.perms=false
+         - APPNAME=${APPNAME}
+      volumes:
+         - logs-volume:/var/log/${APPNAME}/:ro
 
 networks:
    shared-swarm-net-dev:
