@@ -2,6 +2,9 @@ services:
     product-node:
      env_file: 
        - ../docker/environments/common.env
+     environment:
+        - stdoutPath=/var/log/${APPNAME}/combined.log
+        - stderrPath=/var/log/${APPNAME}/error.log
      image: ${DOCKERHUB_USER}/${APPNAME}:${TAG}
      deploy:
       restart_policy:
