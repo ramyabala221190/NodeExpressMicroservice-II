@@ -1,6 +1,15 @@
-# Deployment strategy
+We can run the project locally without docker, with docker using Docker Desktop and on a remote server(using compose and swarm)
+
+
+# Deployment on single VM strategy
+We will be using the compose files within docker folder when deploying all connected microservices like cart,gateway and ek 
+to the same VM.
+
 Deploy elk before other microservices because the latter depends on the former.
 Let the former keep running.
+
+Also deploy the cart and product microsvcs before gateway because gateway depends on these
+microsvcs.
 
 We are using GitHub actions to make CI CD to Azure VM possible.
 
@@ -114,6 +123,43 @@ Client → Edge Gateway (NGINX) → API Gateway (Express Gateway) → Microservi
 
 - **Edge Gateway** handles TLS, load balancing, and basic routing.
 - **API Gateway** enforces API-specific policies like JWT auth, quotas, and versioning.
+
+
+
+
+# Deployment using swarm
+
+We will be using the compose files within the swarm folder.
+We are using GitHub actions to make CI CD to Azure VM possible.
+
+The .github/workflows/swarm-build-deploy.yml contains the workflow for building the project and deploying
+to the Azure VM.
+
+So we have totally 4 Azure VM's- 1 manager and 3 workers.
+Ideally no apps should be deployed to the manager. But in our example, we have deployed the gateway app to the manager,
+product microsvcs to 1 worker, cart microsvcs to another worker and elk to the last worker.
+So the manager also acts as a worker in addition to its orchestration duties.
+
+The compose stack files,env files, nginx config files if any for all microsvcs and elk will be copied to the manager node only.
+We will never do any file copy to the worker nodes.
+
+If nginx config files or ssl certs need to be shared across nodes, it will be done via Swarm configs/secrets. Explained in detail in the elk project.
+So let it be files/certificates, it will be only on the manager node. It will only be shared(if required) with other nodes via swarm configs/
+secrets.
+We never ssh into the worker nodes in github actions workflow file for any reason. Its not required.
+
+So deployment of the files,config files for each project will happen individually from each of the project's github action workflow file.
+
+Prior to deployment, ensure the below steps are completed:
+
+1. Swarm initialised on VM to function as manager node.
+2. Add other VM's as worker nodes to the swarm by ssh'ing into these VM's individually and executing the join command.
+3. Update the roles of each of the nodes from the manager node.
+4. Create overlay networks for each environment from the manager node.
+5. Ensure docker is installed in all VM's.
+6. Ensure certbot is installed in the manager node and certificates are available in the manager node.
+
+
 
 # running locally
 
