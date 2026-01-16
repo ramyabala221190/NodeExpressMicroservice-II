@@ -549,6 +549,8 @@ Express-gateway has the task of loadbalancing between these instances.
 
 # SSL
 
+SSL is not required for the microsvcs because ssl is handled at nginx level. Below is just for info.
+
 Only for prod docker containers, we are using ssl self signed certificates for gateways and microservices.
 
 Same rootCa certificate is used for all microservices and gateway project. That command already specified in gateway project.
