@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: {{.Values.services.express.name}}-deployment-{{.Values.global.environment}}
+ labels:
+  app: {{.Values.services.express.name}}-deployment-{{.Values.global.environment}}
+
+spec:
+  selector:
+    matchLabels:
+      app: {{.Values.services.express.name}}-deployment-{{.Values.global.environment}}
+
+  template:
+    metadata:
+      labels:
+        app: {{.Values.services.express.name}}-deployment-{{.Values.global.environment}}
+      annotations: # This checksum will change whenever the ConfigMap changes 
+        checksum/common-config: {{ include (print $.Template.BasePath "/common-config.yaml") . | sha256sum }} 
+    spec:
+     containers:
+       - name : {{.Values.services.express.name}}-container-{{.Values.global.environment}}
+         image: {{.Values.image.express}}
+         ports:
+          - containerPort : {{.Values.app.express.port}}
+         env:
+           - name: API_GATEWAY_PORT
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: API_GATEWAY_PORT
+           - name: APP_HTTP_PORT
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: APP_HTTP_PORT
+           - name: APP_ENV
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: APP_ENV
+           - name: MONGO_PORT
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: MONGO_PORT
+           - name: MONGO_HOST
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: MONGO_HOST
+           - name: MONGO_DB
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: MONGO_DB
+           - name: CART_MICROSERVICE_MAPPING
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: CART_MICROSERVICE_MAPPING
+           - name: API_GATEWAY
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: API_GATEWAY
+           - name: LOG_LEVEL
+             valueFrom:
+               configMapKeyRef:
+                  name: common-{{.Values.config.name}}
+                  key: LOG_LEVEL

@@ -21,7 +21,7 @@ async getAllProductsService(){
 async messageToCartMicroservice(){
   try{
    
-    let carts= await axios.get(`${process.env.protocol}://${process.env.API_GATEWAY}:${process.env.API_GATEWAY_PORT}/${process.env.CART_MICROSERVICE_MAPPING}/carts`);
+    let carts= await axios.get(`http://${process.env.API_GATEWAY}:${process.env.API_GATEWAY_PORT}/${process.env.CART_MICROSERVICE_MAPPING}/carts`);
     return carts.data
      }
      catch(err){

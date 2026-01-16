@@ -8,7 +8,17 @@
     "local": "set DOTENV_CONFIG_PATH=./local.env&&nodemon",
     "docker-local-dev-build": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env  -p product-node-express-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml  build",
     "docker-local-dev-up": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env -p product-node-express-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build --scale product-node=3",
-    "docker-local-prod-up": "cross-env TARGETENV=prod docker compose --env-file docker/environments/local.env -p product-node-express-prod -f docker/docker-compose.local.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build"
+    "docker-local-prod-up": "cross-env TARGETENV=prod docker compose --env-file docker/environments/local.env -p product-node-express-prod -f docker/docker-compose.local.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build",
+    "build-docker":"docker build -f docker/Dockerfile -t node-product-express-app:2 .",
+    "start-dev":"npm run build-docker && npm run create-namespace-dev && npm run set-context-dev && npm run helm-pack && npm run helm-upgrade-dev",
+    "start-prod":"npm run create-namespace-prod && npm run set-context-prod && npm run helm-upgrade-prod",
+    "create-namespace-dev":"kubectl create namespace dev-node-namespace --dry-run=client -o yaml | kubectl apply -f -",
+    "create-namespace-prod":"kubectl create namespace prod-node-namespace --dry-run=client -o yaml | kubectl apply -f -",
+    "set-context-dev":"kubectl config set-context --current --namespace=dev-node-namespace",
+    "set-context-prod":"kubectl config set-context --current --namespace=prod-node-namespace",
+    "helm-pack":"helm package --version=1.0.4 ./charts/node-product-microsvcs/ --destination ./artifacts",
+    "helm-upgrade-dev":"helm upgrade product-express-app-release ./charts/node-product-microsvcs/ --install --debug -f ./charts/node-product-microsvcs/values.yml -f ./charts/node-product-microsvcs/values-dev.yml --set image.express=node-product-express-app:2 --force",
+    "helm-upgrade-prod":"helm upgrade product-express-app-release ./artifacts/node-product-microsvcs-chart-1.0.4.tgz --install --debug -f ./charts/node-product-microsvcs/values.yml -f ./charts/node-product-microsvcs/values-prod.yml --set image.express=node-product-express-app:2"
   },
   "author": "",
   "license": "ISC",

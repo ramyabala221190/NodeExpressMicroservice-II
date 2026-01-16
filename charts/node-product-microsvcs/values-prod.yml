@@ -1,0 +1,6 @@
+global:
+  environment: prod
+
+app:
+ express:
+   port: 8095

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-{{.Values.config.name}}
+
+data:
+  APP_ENV : {{.Values.global.environment}}
+  MONGO_PORT : "{{.Values.app.mongo.port}}"
+  MONGO_HOST : {{.Values.services.mongo.name}}-service-{{.Values.global.environment}} 
+  MONGO_DB : {{.Values.global.dbName}}
+  API_GATEWAY_PORT : "{{.Values.services.gateway.port}}"
+  APP_HTTP_PORT : "{{.Values.app.express.port}}"
+  CART_MICROSERVICE_MAPPING : {{.Values.global.cartMicrosvcsMapping}}
+  API_GATEWAY : {{.Values.services.gateway.name}}-service-{{.Values.global.environment}} 
+  LOG_LEVEL : {{.Values.global.logLevel}}

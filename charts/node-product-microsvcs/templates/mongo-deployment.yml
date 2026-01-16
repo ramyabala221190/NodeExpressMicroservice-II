@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: {{.Values.services.mongo.name}}-deployment-{{.Values.global.environment}}
+ labels:
+  app: {{.Values.services.mongo.name}}-deployment-{{.Values.global.environment}}
+
+spec:
+  selector:
+    matchLabels:
+      app: {{.Values.services.mongo.name}}-deployment-{{.Values.global.environment}}  # pod labels
+
+  template:
+    metadata:
+      labels:
+        app: {{.Values.services.mongo.name}}-deployment-{{.Values.global.environment}}
+      annotations: # This checksum will change whenever the ConfigMap changes 
+        checksum/common-config: {{ include (print $.Template.BasePath "/common-config.yaml") . | sha256sum }} 
+    spec:
+     containers:
+       - name : {{.Values.services.mongo.name}}-container-{{.Values.global.environment}}
+         image: {{.Values.image.mongo}}
+         ports:
+          - containerPort : {{.Values.app.mongo.port}}

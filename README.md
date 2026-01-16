@@ -984,3 +984,57 @@ Below are the variables:
 
 APP_NAME: It is the name assigned to application deployed to Azure VM
 DOCKERHUB_USERNAME: This is the dockerhub login username
+
+# Kubernetes
+
+We are deploying to a single cluster. Environments are seperated based on namespace:
+dev-node-namespace and prod-node-namespace.
+
+We require seperate deployments and service for Express app and MongoDB.
+We have 1 pod for express app and for mongodb container.
+The express app container and mongo db container in the 2 pods will not directly interact with each other.
+We have 1 ClusterIP service each for the 2 pods, sitting in front of the pods.
+
+In express-service.yaml, the port is 8081 and targetPort will be 8091 in dev and 8095 in prod.
+In mongo-service.yaml, the port and targetPort is the same i.e 27017.
+Keeping the service port same as the port mongo container listens on avoids errors when the express
+app connects to mongo db in dbclient.ts file.
+
+Complete routing flow is given in the gateway repo.
+
+In the package.json, we have the scripts for starting the project.
+
+For "dev" environment, we execute the "start-dev" script.
+
+```
+    "start-dev":"npm run build-docker && npm run create-namespace-dev && npm run set-context-dev && npm run helm-pack && npm run helm-upgrade-dev",
+
+```
+
+Here we build the docker image for express app, create namespace for dev, switch the current context,
+pack the chart artifacts into a .tgz file and then run "helm upgrade".
+
+For "prod" environment, we execute the "start-prod" script.
+
+```
+ "start-prod":"npm run create-namespace-prod && npm run set-context-prod && npm run helm-upgrade-prod",
+
+```
+
+Here we just create namespace, set context and do the "helm upgrade" based on the .tgz file created
+earlier for "dev".
+
+We have a basic values.yml file and an override file for "dev" and "prod" : values-dev.yml and values-prod.yml.
+
+We use these files when doing the helm upgrade in the "start-dev" and "start-prod" script. We can use -f or --values to pass the path to the
+values.yml and the override file. Always first pass the values.yaml followed by the override file so that values are correctly overrided.
+--set can also be used override fields in the values.yaml. Since the value of image tag is not static, we prefer to override it using --set rather than the override file. 
+
+```
+    "helm-upgrade-dev":"helm upgrade product-express-app-release ./charts/node-product-microsvcs/ --install --debug -f ./charts/node-product-microsvcs/values.yml -f ./charts/node-product-microsvcs/values-dev.yml --set image.express=node-product-express-app:2",
+
+```
+
+```
+    "helm-upgrade-prod":"helm upgrade product-express-app-release ./artifacts/node-product-microsvcs-chart-1.0.4.tgz --install --debug -f ./charts/node-product-microsvcs/values.yml -f ./charts/node-product-microsvcs/values-prod.yml --set image.express=node-product-express-app:2"
+```
