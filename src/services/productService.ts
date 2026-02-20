@@ -8,10 +8,9 @@ class ProductService   {
     console.log("instance for Product Service created")
   }
 
-async getAllProductsService(){
+async getAllProductsService():Promise<ProductModel[]>{
     try{
-      const product=await productModel.find();
-      return product;
+      return await productModel.find({});
     }
     catch(err){
        throw new CustomError(`Error fetching products:${err}`,500);
@@ -29,12 +28,39 @@ async messageToCartMicroservice(){
      }
 }
 
-async getProductDetailService(productId:string){
+// async getMultipleProductDetailService(productIds:string[]):Promise<ProductModel[]>{
+//    try{
+//     return await productModel.find(
+//       {
+//         id: {$in:productIds}
+//       }
+//     )
+//    }
+//    catch(err){
+//     throw new CustomError(`Error fetching product details`,500);
+//    }
+// }
+
+async mapProductIdsToDetailService(productIds:string[]):Promise<ProductModel[]>{
     try{
-      const product=await productModel.findById(productId);
-      return product;
+      const products:ProductModel|ProductModel[]=await productModel.find({id: {$in:productIds}}
+      );
+      return [...products];
     }
     catch(err){
+       console.log(err);
+       throw new CustomError(`Error fetching products:${err}`,500);
+    }
+}
+
+async mapObjectIdsToDetailService(productIds:string[]):Promise<ProductModel[]>{
+    try{
+      const products:ProductModel|ProductModel[]=await productModel.find({_id: {$in:productIds}}
+      );
+      return [...products];
+    }
+    catch(err){
+       console.log(err);
        throw new CustomError(`Error fetching products:${err}`,500);
     }
 }

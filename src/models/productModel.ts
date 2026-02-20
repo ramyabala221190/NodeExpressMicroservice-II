@@ -1,20 +1,69 @@
 import * as mongoose from "mongoose"
 
-export interface ProductModel{
+export interface ProductModel {
+    _id: mongoose.Types.ObjectId,
+    id:number,
     title: string,
     description: string,
     category: string,
-    price: Number,
+    price: number,
     discountPercentage: number,
     rating: number,
     stock: number,
+    tags: string[],
     brand: string,
-    availabilityStatus:string,
-    images:string[]
+    sku: string,
+    weight: number,
+    dimensions: {
+        width: number,
+        height: number,
+        depth: number
+    },
+    warrantyInformation: string,
+    shippingInformation: string,
+    availabilityStatus: string,
+    reviews: {
+        rating: number,
+        comment: string,
+        date: Date,
+        reviewerName: string,
+        reviewerEmail: string
+    }[],
+    returnPolicy: string,
+    minimumOrderQuantity: number,
+    meta: {
+        createdAt: Date,
+        updatedAt: Date,
+        barcode: string,
+        qrCode: string
+    },
+    images: string[],
+    thumbnail: string
 }
 
-const productSchema=new mongoose.Schema({
-    id:Number,
+const dimensionSchema = new mongoose.Schema({
+    width: Number,
+    height: Number,
+    depth: Number
+});
+
+const metaSchema = new mongoose.Schema({
+    createdAt: Date,
+    updatedAt: Date,
+    barcode: String,
+    qrCode: String
+});
+
+const reviewSchema = new mongoose.Schema({
+    rating: Number,
+    comment: String,
+    date: Date,
+    reviewerName: String,
+    reviewerEmail: String
+});
+
+const productSchema = new mongoose.Schema({
+    id: Number,
     title: String,
     description: String,
     category: String,
@@ -22,9 +71,20 @@ const productSchema=new mongoose.Schema({
     discountPercentage: Number,
     rating: Number,
     stock: Number,
+    tags: Array<String>,
     brand: String,
-    availabilityStatus:String,
-    images:Array<String>
+    sku: String,
+    weight: Number,
+    dimensions: dimensionSchema,
+    warrantyInformation: String,
+    shippingInformation: String,
+    availabilityStatus: String,
+    reviews: [reviewSchema],
+    returnPolicy: String,
+    minimumOrderQuantity: Number,
+    meta: metaSchema,
+    images: Array<String>,
+    thumbnail: String
 })
 
-export default mongoose.model("Product",productSchema); //collection name will be products i.e plural lowercase of model name
+export default mongoose.model("Product", productSchema); //collection name will be products i.e plural lowercase of model name

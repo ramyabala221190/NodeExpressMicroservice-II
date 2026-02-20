@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 //     getProductDetailService, messageToCartMicroservice, updateProductService } from "../services/productService";
 
 import productService from '../services/productService';
+import { ProductModel } from "../models/productModel";
 
 class ProductController{
 
@@ -15,9 +16,45 @@ class ProductController{
         on port ${process.env.APP_HTTP_PORT}.\n
         Your API Gateway routing this request is ${process.env.API_GATEWAY} on port ${process.env.API_GATEWAY_PORT}.    
         `);
-     }   
+     } 
+     
+    //  async getMultipleProductDetailController(req:Request,res:Response,next:NextFunction){
+    //     try{
+    //       let products:ProductModel[]=await productService.getMultipleProductDetailService(req.body.productIds);
+    //       res.status(200).json({message:"Product(s) Detail retreived successfully",products:products})
+    //     }
+    //     catch(err){
+    //         next(err);
+    //     }
+    //  }
+
+      async  mapProductIdsToDetail(req:Request,res:Response,next:NextFunction){
+        try{
+            let product=await productService.mapProductIdsToDetailService(req.body.productIds);
+            if(!product){
+                res.status(404).json({message: "Product not found",product:null})
+            }
+            res.status(200).json({message:"Product Detail retreived successfully",product:product});
+            }
+            catch(err){
+               next(err);
+            }
+    }
+
+     async  mapObjectIdsToDetail(req:Request,res:Response,next:NextFunction){
+        try{
+            let product=await productService.mapObjectIdsToDetailService(req.body.productIds);
+            if(!product){
+                res.status(404).json({message: "Product not found",product:null})
+            }
+            res.status(200).json({message:"Product Detail retreived successfully",product:product});
+            }
+            catch(err){
+               next(err);
+            }
+    }
     
-     async getProductsController(req:Request,res:Response,next:NextFunction){
+     async getAllProductsController(req:Request,res:Response,next:NextFunction){
         try{
         let productsList=await productService.getAllProductsService();
         res.status(200).json({message:"Product retreived successfully",products:productsList});
@@ -37,15 +74,7 @@ class ProductController{
         }
     }
     
-     async  getProductDetailController(req:Request,res:Response,next:NextFunction){
-        try{
-            let product=await productService.getProductDetailService(req.params.id);
-            res.status(200).json({message:"Products retreived successfully",products:product});
-            }
-            catch(err){
-               next(err);
-            }
-    }
+    
     
      async  deleteProductController(req:Request,res:Response,next:NextFunction){
     try{
