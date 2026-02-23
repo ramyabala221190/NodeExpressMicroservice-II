@@ -22,6 +22,15 @@ productRouter.route('/products/ids')
 productRouter.route('/products/internal/ids')
 .post(productController.mapObjectIdsToDetail) 
 
+productRouter.route('/product/stock/')
+.put(productController.updateProductStockController);
+
+productRouter.route('/product/:productId/review/')
+.post(productController.addProductReview)
+
+productRouter.route('/product/:productId/review/:reviewId')
+.put(productController.updateProductReview)
+
 productRouter.route('/product/:productId')
 .delete(productController.deleteProductController)
 .put(productController.updateProductController);

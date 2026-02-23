@@ -41,18 +41,27 @@ export interface ProductModel {
     thumbnail: string
 }
 
+export interface ReviewModel {
+    rating: number,
+    comment: string,
+    date: Date,
+    reviewerName: string,
+    reviewerEmail: string
+}
+
+
 const dimensionSchema = new mongoose.Schema({
     width: Number,
     height: Number,
     depth: Number
-});
+},{_id:true,timestamps:true});
 
 const metaSchema = new mongoose.Schema({
     createdAt: Date,
     updatedAt: Date,
     barcode: String,
     qrCode: String
-});
+},{_id:true,timestamps:true});
 
 const reviewSchema = new mongoose.Schema({
     rating: Number,
@@ -60,7 +69,7 @@ const reviewSchema = new mongoose.Schema({
     date: Date,
     reviewerName: String,
     reviewerEmail: String
-});
+},{_id:true,timestamps:true});
 
 const productSchema = new mongoose.Schema({
     id: Number,
@@ -85,6 +94,6 @@ const productSchema = new mongoose.Schema({
     meta: metaSchema,
     images: Array<String>,
     thumbnail: String
-})
+},{timestamps:true})
 
 export default mongoose.model("Product", productSchema); //collection name will be products i.e plural lowercase of model name
