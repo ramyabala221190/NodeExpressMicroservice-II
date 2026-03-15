@@ -25,15 +25,20 @@ productRouter.route('/products/internal/ids')
 productRouter.route('/product/stock/')
 .put(productController.updateProductStockController);
 
+productRouter.route('/product/discount/')
+.put(productController.updateProductDiscountController);
+
 productRouter.route('/product/:productId/review/')
 .post(productController.addProductReview)
 
 productRouter.route('/product/:productId/review/:reviewId')
 .put(productController.updateProductReview)
 
+
 productRouter.route('/product/:productId')
 .delete(productController.deleteProductController)
 .put(productController.updateProductController);
+
 
 
 export default productRouter;

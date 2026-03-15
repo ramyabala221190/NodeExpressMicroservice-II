@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-// import { createProductService, deleteProductService, getAllProductsService, 
-//     getProductDetailService, messageToCartMicroservice, updateProductService } from "../services/productService";
-
 import productService from '../services/productService';
-import { ProductModel } from "../models/productModel";
+import { ProductModel, ProductPayload } from "@ramyabala221190/api-contracts";
 
 class ProductController {
 
@@ -18,21 +15,12 @@ class ProductController {
         `);
     }
 
-    //  async getMultipleProductDetailController(req:Request,res:Response,next:NextFunction){
-    //     try{
-    //       let products:ProductModel[]=await productService.getMultipleProductDetailService(req.body.productIds);
-    //       res.status(200).json({message:"Product(s) Detail retreived successfully",products:products})
-    //     }
-    //     catch(err){
-    //         next(err);
-    //     }
-    //  }
 
     async mapProductIdsToDetail(req: Request, res: Response, next: NextFunction) {
         try {
-            let product = await productService.mapProductIdsToDetailService(req.body.productIds);
-            if (!product) {
-                res.status(404).json({ message: "Product not found", product: null })
+            let product:ProductModel[] = await productService.mapProductIdsToDetailService(req.body.productIds);
+            if (!product.length) {
+                res.status(404).json({ message: "No products found", product: null })
             }
             res.status(200).json({ message: "Product Detail retreived successfully", product: product });
         }
@@ -43,11 +31,13 @@ class ProductController {
 
     async mapObjectIdsToDetail(req: Request, res: Response, next: NextFunction) {
         try {
-            let product = await productService.mapObjectIdsToDetailService(req.body.productIds);
-            if (!product) {
-                res.status(404).json({ message: "Product not found", product: null })
+            let product:ProductModel[] = await productService.mapObjectIdsToDetailService(req.body.productIds);
+            if (!product.length) {
+                res.status(404).json({ message: "Products not found", product: null })
             }
+            else{
             res.status(200).json({ message: "Product Detail retreived successfully", product: product });
+            }
         }
         catch (err) {
             next(err);
@@ -56,7 +46,7 @@ class ProductController {
 
     async getAllProductsController(req: Request, res: Response, next: NextFunction) {
         try {
-            let productsList = await productService.getAllProductsService();
+            let productsList:ProductModel[] = await productService.getAllProductsService();
             res.status(200).json({ message: "Product retreived successfully", products: productsList });
         }
         catch (err) {
@@ -78,8 +68,8 @@ class ProductController {
 
     async deleteProductController(req: Request, res: Response, next: NextFunction) {
         try {
-            const deleteCount = await productService.deleteProductService(req.params.id);
-            res.status(204).json({ message: "Product deleted successfully", count: deleteCount });
+            await productService.deleteProductService(req.params.id);
+            res.status(204).json({ message: "Product deleted successfully" });
         }
         catch (err) {
             next(err);
@@ -89,8 +79,8 @@ class ProductController {
 
     async createProductController(req: Request, res: Response, next: NextFunction) {
         try {
-            const newProduct = await productService.createProductService(req.body);
-            res.status(201).json({ message: "Product created successfully", products: newProduct });
+            const newProduct:ProductModel = await productService.createProductService(req.body);
+            res.status(201).json({ message: "Product created successfully", product: newProduct });
         }
         catch (err) {
             next(err);
@@ -110,7 +100,7 @@ class ProductController {
     async addProductReview(req: Request, res: Response, next: NextFunction) {
         try {
             await productService.createProductReviewService(req.params.productId, req.body.newReview);
-            res.status(200).json({ message: "Added review successfully" })
+            res.status(201).json({ message: "Added review successfully" })
         }
         catch (err) {
             next(err);
@@ -127,10 +117,21 @@ class ProductController {
         }
     }
 
+    async updateProductDiscountController(req: Request, res: Response, next: NextFunction){
+        try{
+       await productService.updateProductDiscountService(req.body.categories, req.body.discountPercentage);
+       res.status(200).json({message: "Discount percentage updated for the product categories"})
+        }
+        catch(err){
+            next(err);
+        }
+
+    }
+
     async updateProductController(req: Request, res: Response, next: NextFunction) {
         try {
             const updatedProduct = productService.updateProductService(req.params.id, req.body);
-            res.status(200).json({ message: "Product updated successfully", products: updatedProduct })
+            res.status(200).json({ message: "Product updated successfully", product: updatedProduct })
         }
         catch (err) {
             next(err);
@@ -140,70 +141,3 @@ class ProductController {
 
 export default new ProductController();
 
-//  export async function welcomeProductController(req:Request,res:Response,next:NextFunction){
-//     res.status(200).send(`Hey You are sucessfully connected to the ProductsMicroservice in ${process.env.APP_ENV} environment
-//     on port ${process.env.APP_HTTP_PORT}.\n
-//     Your API Gateway routing this request is ${process.env.API_GATEWAY} on port ${process.env.API_GATEWAY_PORT}.
-//     `);
-//  }
-
-// export async function getProductsController(req:Request,res:Response,next:NextFunction){
-//     try{
-//     let productsList=await getAllProductsService();
-//     res.status(200).json({message:"Product retreived successfully",products:productsList});
-//     }
-//     catch(err){
-//        next(err);
-//     }
-// }
-
-// export async function sendMessageToCartMicroservice(req:Request,res:Response,next:NextFunction){
-//     try{
-//    let carts=await messageToCartMicroservice();
-//    res.status(200).json({message:"Carts retreived successfully",carts:carts});
-//     }
-//     catch(err){
-//         next(err);
-//     }
-// }
-
-// export async function getProductDetailController(req:Request,res:Response,next:NextFunction){
-//     try{
-//         let product=await getProductDetailService(req.params.id);
-//         res.status(200).json({message:"Products retreived successfully",products:product});
-//         }
-//         catch(err){
-//            next(err);
-//         }
-// }
-
-// export async function deleteProductController(req:Request,res:Response,next:NextFunction){
-// try{
-//    const deleteCount=await deleteProductService(req.params.id);
-//    res.status(204).json({message:"Product deleted successfully",count:deleteCount});
-// }
-// catch(err){
-//     next(err);
-// }
-
-// }
-
-// export async function createProductController(req:Request,res:Response,next:NextFunction){
-//     try{
-//     const newProduct=await createProductService(req.body);
-//      res.status(201).json({message:"Product created successfully",products:newProduct});
-//     }
-//     catch(err){
-//         next(err);
-//     }
-// }
-
-// export async function updateProductController(req:Request,res:Response,next:NextFunction){
-//     try{
-//        const updatedProduct=updateProductService(req.params.id,req.body);
-//        res.status(200).json({message:"Product updated successfully",products:updatedProduct})
-//     }
-//     catch(err){
-//         next(err);
-//     }
-// }

@@ -1,8 +1,16 @@
 import * as mongoose from "mongoose"
+import { ProductModel } from '@ramyabala221190/api-contracts';
 
-export interface ProductModel {
+/**
+ * Very important that the interfaces and schemas match
+ * If ? is not there in the interface field, then in the schema the required:true must be added.
+ * string[] in interface is equivalent to [String] in mongoose schema
+ */
+
+//interface that models the schema
+export interface ProductDocument extends mongoose.Document {
     _id: mongoose.Types.ObjectId,
-    id:number,
+    id: number,
     title: string,
     description: string,
     category: string,
@@ -11,7 +19,7 @@ export interface ProductModel {
     rating: number,
     stock: number,
     tags: string[],
-    brand: string,
+    brand?: string | null, //can be string/null
     sku: string,
     weight: number,
     dimensions: {
@@ -23,6 +31,7 @@ export interface ProductModel {
     shippingInformation: string,
     availabilityStatus: string,
     reviews: {
+        _id: mongoose.Types.ObjectId,
         rating: number,
         comment: string,
         date: Date,
@@ -38,62 +47,75 @@ export interface ProductModel {
         qrCode: string
     },
     images: string[],
-    thumbnail: string
+    thumbnail: string,
+    createdAt: Date, //this will be added by schema so need to add to interface
+    updatedAt: Date  // this will be added by schema so need to add to interface
 }
 
-export interface ReviewModel {
+export interface ReviewDocument extends mongoose.Document {
+    _id: mongoose.Types.ObjectId,
     rating: number,
     comment: string,
     date: Date,
     reviewerName: string,
-    reviewerEmail: string
+    reviewerEmail: string,
+    createdAt: Date, //this will be added by schema so need to add to interface
+    updatedAt: Date  // this will be added by schema so need to add to interface
 }
 
-
 const dimensionSchema = new mongoose.Schema({
-    width: Number,
-    height: Number,
-    depth: Number
-},{_id:true,timestamps:true});
+    width: { type: Number, required: true },
+    height: { type: Number, required: true },
+    depth: { type: Number, required: true }
+});
 
 const metaSchema = new mongoose.Schema({
-    createdAt: Date,
-    updatedAt: Date,
-    barcode: String,
-    qrCode: String
-},{_id:true,timestamps:true});
+    createdAt: { type: Date, required: true },
+    updatedAt: { type: Date, required: true },
+    barcode: { type: String, required: true },
+    qrCode: { type: String, required: true }
+});
 
 const reviewSchema = new mongoose.Schema({
-    rating: Number,
-    comment: String,
-    date: Date,
-    reviewerName: String,
-    reviewerEmail: String
-},{_id:true,timestamps:true});
+    rating: { type: Number, required: true },
+    comment: { type: String, required: true },
+    date: { type: Date, required: true },
+    reviewerName: { type: String, required: true },
+    reviewerEmail: { type: String, required: true },
+}, { timestamps: true });
 
 const productSchema = new mongoose.Schema({
-    id: Number,
-    title: String,
-    description: String,
-    category: String,
-    price: Number,
-    discountPercentage: Number,
-    rating: Number,
-    stock: Number,
-    tags: Array<String>,
-    brand: String,
-    sku: String,
-    weight: Number,
-    dimensions: dimensionSchema,
-    warrantyInformation: String,
-    shippingInformation: String,
-    availabilityStatus: String,
-    reviews: [reviewSchema],
-    returnPolicy: String,
-    minimumOrderQuantity: Number,
-    meta: metaSchema,
-    images: Array<String>,
-    thumbnail: String
-},{timestamps:true})
+    id: { type: Number, required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    category: { type: String, required: true },
+    price: { type: Number, required: true },
+    discountPercentage: { type: Number, required: true },
+    rating: { type: Number, required: true },
+    stock: { type: Number, required: true },
+    tags: { type: [String], required: true },
+    brand: { type: String, required: false, default: null }, //optional field with a default value as null. matches interface
+    sku: { type: String, required: true },
+    weight: { type: Number, required: true },
+    dimensions: { type: dimensionSchema, required: true },
+    warrantyInformation: { type: String, required: true },
+    shippingInformation: { type: String, required: true },
+    availabilityStatus: { type: String, required: true },
+    reviews: { type: [reviewSchema], required: true },
+    returnPolicy: { type: String, required: true },
+    minimumOrderQuantity: { type: Number, required: true },
+    meta: { type: metaSchema, required: true },
+    images: { type: [String], required: true },
+    thumbnail: { type: String, required: true }
+}, { timestamps: true });
 
-export default mongoose.model("Product", productSchema); //collection name will be products i.e plural lowercase of model name
+
+//export type ProductDocument = mongoose.Document & ProductModel; //This merges your ProductModel interface with Mongoose’s Document type.
+export default mongoose.model<ProductDocument>("Product", productSchema); //collection name will be products i.e plural lowercase of model name
+
+/**
+ * 
+ * 
+Inside your service layer: use ProductDocument so you get type safety and Mongoose features.
+When returning to the client: convert to plain objects (ProductModel) so you don’t leak Mongoose internals.
+ */
