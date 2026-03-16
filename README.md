@@ -1,8 +1,8 @@
 We can run the project locally without docker, with docker using Docker Desktop and on a remote server(using compose and swarm)
 
-
 # Deployment on single VM strategy
-We will be using the compose files within docker folder when deploying all connected microservices like cart,gateway and ek 
+
+We will be using the compose files within docker folder when deploying all connected microservices like cart,gateway and ek
 to the same VM.
 
 Deploy elk before other microservices because the latter depends on the former.
@@ -33,10 +33,9 @@ Note that building and pushing for express and nginx is required when deploying 
 followed by pulling those images in the VM.
 In prod environment, we just need to pull the already built and pushed images in the VM.
 
-
 So we are maintaining seperate docker-compose files for deployment and local run.
 The build field will be provided only in the docker-compose.local.yml and it will be omitted in the
-docker-compose.yml. 
+docker-compose.yml.
 This is because for local run ,we need to build the image and run it in DockerDesktop.
 
 For deployment, we have a github action building and pushing the image. To pull the image in the VM,
@@ -45,7 +44,7 @@ we just need the image name in the docker-compose.yml.
 Another important point to note is that the VM requires the compose and environment files in the VM
 to pull the image. It also requires the nginx config files for dynamic injection of config file based on
 deployment environment. So we have used the scp action to copy the docker folder and its contents
-to a dedicated folder in the vm.  Post this, we execute the "compose pull" and "compose up" 
+to a dedicated folder in the vm. Post this, we execute the "compose pull" and "compose up"
 commands in the github action.
 
 ```
@@ -72,11 +71,11 @@ So we have to create .env file in the deploy step with the variables required to
 Compose will automatically pick the .env file. There is no need to specify it in the compose file.
 
 ```
-  cat <<EOF > /home/${{ secrets.AZURE_VM_USER }}/${{vars.APP_NAME}}/docker/.env 
-               DOCKERHUB_USER=${{ vars.DOCKERHUB_USERNAME }} 
-               APPNAME=${{ vars.APP_NAME }} 
-               TAG=${{ env.TAG }} 
-               TARGETENV=${{ github.event.inputs.environment }} 
+  cat <<EOF > /home/${{ secrets.AZURE_VM_USER }}/${{vars.APP_NAME}}/docker/.env
+               DOCKERHUB_USER=${{ vars.DOCKERHUB_USERNAME }}
+               APPNAME=${{ vars.APP_NAME }}
+               TAG=${{ env.TAG }}
+               TARGETENV=${{ github.event.inputs.environment }}
                EOF
 
 ```
@@ -90,7 +89,7 @@ The express-gateway instance to which the request is routed, will loadbalance be
 product microservice respectively. We have 3 instances of each microservices.
 Based on the request path, the express-gateway will decide which microservice the request needs to be routed to and will also
 loadbalance between different instances of that microservice.
-Its important to note that any communication between the microservices has to happen via  express-gateway and not nginx.
+Its important to note that any communication between the microservices has to happen via express-gateway and not nginx.
 
 Nginx only receives the client requests and forwards them to the express-gateway. The express-gateway will forward the request
 to the respective microservice. The microservice will communicate with other microservices via the express-gateway.
@@ -101,15 +100,15 @@ nginx acts as edge gateway and express-gateway acts as api gateway
 
 ### 🧭 API Gateway vs Edge Gateway
 
-| Feature                  | **API Gateway**                                         | **Edge Gateway**                                         |
-|--------------------------|---------------------------------------------------------|----------------------------------------------------------|
-| **Primary Role**         | Manages API traffic between clients and services        | Manages all traffic entering the network or cluster      |
-| **Scope**                | Focused on APIs and microservices                       | Broader scope: APIs, web apps, static content, etc.      |
-| **Location**             | Sits between client and backend APIs                    | Sits at the network edge, often before API gateway       |
-| **Functions**            | Authentication, rate limiting, routing, caching         | SSL termination, load balancing, firewall, DDoS protection |
-| **Protocols**            | Mostly HTTP/HTTPS, REST, GraphQL                        | Supports HTTP, TCP, UDP, TLS, and more                   |
-| **Examples**             | Kong, Express Gateway, Apigee, AWS API Gateway          | NGINX, Envoy, Cloudflare Gateway, NGINX Gateway Fabric   |
-| **Use Case**             | API management and developer control                    | Network-level security and traffic control               |
+| Feature          | **API Gateway**                                  | **Edge Gateway**                                           |
+| ---------------- | ------------------------------------------------ | ---------------------------------------------------------- |
+| **Primary Role** | Manages API traffic between clients and services | Manages all traffic entering the network or cluster        |
+| **Scope**        | Focused on APIs and microservices                | Broader scope: APIs, web apps, static content, etc.        |
+| **Location**     | Sits between client and backend APIs             | Sits at the network edge, often before API gateway         |
+| **Functions**    | Authentication, rate limiting, routing, caching  | SSL termination, load balancing, firewall, DDoS protection |
+| **Protocols**    | Mostly HTTP/HTTPS, REST, GraphQL                 | Supports HTTP, TCP, UDP, TLS, and more                     |
+| **Examples**     | Kong, Express Gateway, Apigee, AWS API Gateway   | NGINX, Envoy, Cloudflare Gateway, NGINX Gateway Fabric     |
+| **Use Case**     | API management and developer control             | Network-level security and traffic control                 |
 
 ---
 
@@ -123,9 +122,6 @@ Client → Edge Gateway (NGINX) → API Gateway (Express Gateway) → Microservi
 
 - **Edge Gateway** handles TLS, load balancing, and basic routing.
 - **API Gateway** enforces API-specific policies like JWT auth, quotas, and versioning.
-
-
-
 
 # Deployment using swarm
 
@@ -158,8 +154,6 @@ Prior to deployment, ensure the below steps are completed:
 4. Create overlay networks for each environment from the manager node.
 5. Ensure docker is installed in all VM's.
 6. Ensure certbot is installed in the manager node and certificates are available in the manager node.
-
-
 
 # running locally
 
@@ -209,6 +203,7 @@ ts-node -r dotenv/config ./src/app.ts
 
 Note:
 If you do not want to install the dotenv package, you can load environment variables using nodemon as well. Specify the environment vairables as key-value pairs within the "env" field in the nodemon.json, instead of defining it within the local.env file. You can skip the dotenv/config within the "exec" field.
+
 ```
 {
 "watch": ["src"],
@@ -236,7 +231,7 @@ For local testing, we need to install the Community Edition of MongoDB. Below is
 
 https://www.mongodb.com/try/download/community
 
- When installing the .msi, choose custom setup.Click Next and select to use mongodb as a service and not
+When installing the .msi, choose custom setup.Click Next and select to use mongodb as a service and not
 as a local domain or user.
 
 Once installed, you can create a empty data/db directory within C:/ using the command "mkdir data/db" in cmd . To start the mongodb server, which by default listens on the port 27017.
@@ -272,7 +267,7 @@ To connect to a MongoDB deployment, you need two things:
 
 =>MongoClient object, which creates the connection to and performs operations on the MongoDB deployment.
 
-In  dbClient.ts below is the connection URI
+In dbClient.ts below is the connection URI
 
 const uri=`mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`;
 
@@ -301,7 +296,7 @@ export default mongoose.model("Product",productSchema);
 
 Once docker image is built and docker containers for db,node and nginx are up and running,
 
-In CMD,use the below  docker exec command to open an interactive mongosh session inside your running MongoDB container.
+In CMD,use the below docker exec command to open an interactive mongosh session inside your running MongoDB container.
 
 See the container name, we have in the docker compose file
 
@@ -326,7 +321,6 @@ use myProductApp
 ```
 
 List the collections
-
 
 ```
 show collections
@@ -366,6 +360,7 @@ Below is an example for local run:
 ```
  "docker-local-dev-up": "cross-env TARGETENV=dev docker compose --env-file docker/environments/local.env -p gateway-dev -f docker/docker-compose.local.yml -f docker/docker-compose.dev.override.yml up -d --remove-orphans --no-build --scale product-node=3",
 ```
+
 Same approach used for deployment as well:
 
 ```
@@ -380,23 +375,24 @@ docker compose \
 We always create the docker image once when deploying to dev environment and pull it from the VM for dev and prod environments for creating
 the containers.
 
-
 ## 🧩 How environment variables actually work in Docker
 
-### 1. **Environment variables are available *inside the running container’s process environment***  
+### 1. **Environment variables are available _inside the running container’s process environment_**
+
 A file inside the container (like an Nginx template, a Node.js script, a shell script, etc.) can access an environment variable **only if that variable exists in the container’s environment at runtime**.
 
-### 2. **How do environment variables get into the container?**  
+### 2. **How do environment variables get into the container?**
+
 They can come from several sources:
 
-| Source | Does it make the variable available inside the container? |
-|--------|-----------------------------------------------------------|
-| `environment:` in `docker-compose.yml` | ✅ Yes |
-| `env_file:` in `docker-compose.yml` | ✅ Yes |
-| `docker run -e VAR=value` | ✅ Yes |
-| `docker run --env-file file.env` | ✅ Yes |
-| `ENV VAR=value` in Dockerfile | ✅ Yes (but baked into the image) |
-| Variables defined only in your host shell | ❌ No, unless passed explicitly |
+| Source                                    | Does it make the variable available inside the container? |
+| ----------------------------------------- | --------------------------------------------------------- |
+| `environment:` in `docker-compose.yml`    | ✅ Yes                                                    |
+| `env_file:` in `docker-compose.yml`       | ✅ Yes                                                    |
+| `docker run -e VAR=value`                 | ✅ Yes                                                    |
+| `docker run --env-file file.env`          | ✅ Yes                                                    |
+| `ENV VAR=value` in Dockerfile             | ✅ Yes (but baked into the image)                         |
+| Variables defined only in your host shell | ❌ No, unless passed explicitly                           |
 
 By convention, Docker Compose automatically looks for a file named .env in the same directory as your docker-compose.yml (or compose.yaml).
 If found, variables from this file are loaded automatically.
@@ -405,7 +401,8 @@ You do not need to explicitly declare it with env_file: in the service definitio
 So **environment variables are NOT limited to only `environment:` or `env_file:`**.  
 They just need to be part of the container’s environment when it starts.
 
-### 3. **Files inside the container cannot magically read host environment variables**  
+### 3. **Files inside the container cannot magically read host environment variables**
+
 A file like:
 
 - `/etc/nginx/templates/default.conf.template`
@@ -415,7 +412,8 @@ A file like:
 
 …can only access variables that Docker injected into the container environment.
 
-### 4. **Template engines (like envsubst, Nginx templates, etc.) only see variables in the container environment**  
+### 4. **Template engines (like envsubst, Nginx templates, etc.) only see variables in the container environment**
+
 If you’re using:
 
 - `envsubst`
@@ -436,7 +434,8 @@ If the variable wasn’t passed via:
 
 ---
 
-## 🧠 The key rule  
+## 🧠 The key rule
+
 **A variable is accessible only if it exists in the container’s environment at runtime.**  
 How it got there doesn’t matter — but it must be injected by Docker.
 
@@ -446,14 +445,15 @@ environment: or env_file: or --env-file is used for container runtime environmen
 
 So any environment variables exposed from Github actions, are added to the .env file in the same folder as docker-compose in the VM.
 This ensures the compose file picks them up but they will not be available in the container.
+
 ```
- cat <<EOF > /home/${{env.VM_USER }}/${{vars.APP_NAME}}/docker/.env 
-               DOCKERHUB_USER=${{ vars.DOCKERHUB_USERNAME }} 
-               APPNAME=${{ vars.APP_NAME }} 
-               TAG=${{ env.TAG }} 
+ cat <<EOF > /home/${{env.VM_USER }}/${{vars.APP_NAME}}/docker/.env
+               DOCKERHUB_USER=${{ vars.DOCKERHUB_USERNAME }}
+               APPNAME=${{ vars.APP_NAME }}
+               TAG=${{ env.TAG }}
                TARGETENV=${{ github.event.inputs.environment }}
                AZURE_VM_DOMAIN=${{env.VM_DOMAIN}}
-               VM_USER=${{env.VM_USER}} 
+               VM_USER=${{env.VM_USER}}
                EOF
 
 
@@ -480,7 +480,6 @@ So there is difference between the variables in .env file vs in environment:, --
 The last 3 will be available in the container runtime. The former will be available only to the compose file.
 So it needs to be re-declared in the environment: field.
 
-
 # running in docker
 
 Used cross-env npm package for local docker builds
@@ -498,7 +497,6 @@ We use the same image to bring the dev and prod containers up. Below are the com
     "docker-local-prod-up": "cross-env TARGETENV=prod docker compose --env-file docker/environments/local.env -p product-node-express-prod -f docker/docker-compose.local.yml -f docker/docker-compose.prod.override.yml up -d --remove-orphans --no-build --scale product-node=3"
 
 ```
-
 
 For product-node , we have used expose instead of ports field.
 This ensures that the containers are only exposed to other containers and not externally
@@ -518,22 +516,22 @@ Container ports can remain the same for the 3 instances of product-node service
 Looking at docker-compose.dev.override.yml for db
 
 ```
- product-db:
-      ports:
-         - 27017:27017
-      networks:
-       - mynetwork-dev
+
+product-db:
+ports: - 27017:27017
+networks: - mynetwork-dev
+
 ```
 
 Looking at docker-compose.prod.override.yml
 
 ```
-  product-db:
-      ports:
-         - 27016:27017
-      networks:
-       - mynetwork-prod
-```
+
+product-db:
+ports: - 27016:27017
+networks: - mynetwork-prod
+
+````
 
 In the docker compose file, the container port(RHS) must be the port on which the mongod process within the container is listening on. This
 port will always be 27017 so the container port(RHS) must also be 27017, unless you are changing the port on which the mongod process
@@ -583,7 +581,7 @@ In Docker networks, each service is automatically assigned a DNS name that match
 
 ```js
 axios.get('http://nginx-service/api/data')
-```
+````
 
 …it’s actually resolving `nginx-service` via Docker’s internal DNS to the container running NGINX.
 
@@ -594,12 +592,13 @@ axios.get('http://nginx-service/api/data')
 If you're using **HTTPS** and the request is:
 
 ```js
-axios.get('https://nginx-service/api/data')
+axios.get("https://nginx-service/api/data");
 ```
 
 then the SSL certificate presented by NGINX must match `nginx-service`—or the request will fail with a **certificate mismatch error**.
 
 #### ✅ Solutions:
+
 - **Use a self-signed certificate** with `nginx-service` as a Subject Alternative Name (SAN).
 - Or, configure NGINX to respond to a **real domain name** (e.g., `api.example.com`) and use that in your request.
 - Alternatively, use **HTTP internally** and terminate SSL at the edge (e.g., for external traffic only).
@@ -611,8 +610,6 @@ then the SSL certificate presented by NGINX must match `nginx-service`—or the 
 - Use **Docker service names** for internal routing.
 - Use **domain names** for external access and SSL.
 - If SSL is needed internally, ensure your cert includes the Docker service name in its SAN.
-
-
 
 We are bind mounting these cetificates from the host onto the container
 
@@ -654,11 +651,13 @@ The NODE_EXTRA_CA_CERTS environment variable in Node.js is used to specify an ad
 
 Why Use NODE_EXTRA_CA_CERTS?
 By default, Node.js uses a built-in set of trusted root certificates. However, in enterprise or private environments, you might need to trust custom or internal CAs—for example:
+
 - Your company uses a private CA to issue certificates for internal services.
 - You're working with a self-signed certificate.
 - You need to trust a third-party CA not included in Node’s default list.
 
 When you set NODE_EXTRA_CA_CERTS, Node.js:
+
 - Loads the specified PEM-encoded certificate file.
 - Adds those certificates to the trust store used by TLS/HTTPS modules.
 - Applies them globally to all HTTPS requests made by your Node.js app.
@@ -691,11 +690,11 @@ stderrPath=/var/log/${APPNAME}/error.log
 Also in order to integrate this with ELK, we have done few more steps
 
 1. Observe the filebeat folder in the root. Each microservice has the filebeat configured to pick up
-the log messages from configured path, send them to logstash, which in turn sends them to elastic search. 
-Kibana provides a visual display.
+   the log messages from configured path, send them to logstash, which in turn sends them to elastic search.
+   Kibana provides a visual display.
 
 2. Logstash,Elastic Search and Kibana are configured in a seperate project. But filebeat needs to be in
-every project, where log messages need to be collect, processed and displayed in kibana.
+   every project, where log messages need to be collect, processed and displayed in kibana.
 
 Moving to the docker-compose.yml
 
@@ -718,22 +717,24 @@ In Docker, both named volumes and bind mounts are used to persist and share data
 Here’s a clear comparison to help you choose the right one:
 
 📦 Named Volumes
+
 - Managed by Docker: Stored in Docker’s internal storage (/var/lib/docker/volumes/).
 - Created by name: You can create them explicitly (docker volume create mydata) or implicitly when starting a container.
 - Portable: Easier to use across environments (e.g., dev, staging, prod).
 - Safe and isolated: Docker controls access, reducing risk of accidental deletion or modification.
 - Backups and drivers: Can be backed up easily and support volume drivers (e.g., for cloud storage).
-Use when:
+  Use when:
 - You want Docker to manage the storage.
 - You need portability and isolation.
 - You're deploying to production or orchestrating with Docker Compose or Swarm.
 
 📂 Bind Mounts
+
 - Direct host path: Maps a specific file or folder from the host system into the container.
 - Full control: You can edit files directly on the host and see changes instantly in the container.
 - Less portable: Depends on host file paths, which may vary across systems.
 - More flexible: Useful for development, debugging, or sharing config files.
-Use when:
+  Use when:
 - You need real-time access to host files (e.g., source code).
 - You're developing locally and want to see changes instantly.
 - You need to mount specific host directories.
@@ -754,12 +755,11 @@ So inside the container, when it accesses /var/log/${APPNAME}/, it's actually re
 🧠 Key Distinction
 If you had used a bind mount like this:
 volumes:
-  - ./host-logs:/var/log/${APPNAME}/:ro
 
+- ./host-logs:/var/log/${APPNAME}/:ro
 
 Then the container would be reading directly from the host path ./host-logs.
 But with a named volume (logs-volume), Docker abstracts away the host path and manages the storage internally.
-
 
 Observe that the docker service for the express app also references the named volume. The express app will write the logs using winston to the combined.log/error.log within /var/log/${APPNAME} folder. So this also means that these logs will be available in the logs-volume.
 The filebeat service has ro access to the volume and can access the log messages.
@@ -788,9 +788,10 @@ networks:
 No ports specified for filebeat in docker compose ?
 
 Filebeat is a log shipper, not a service that listens for incoming network traffic. It typically:
+
 - Reads log files from mounted volumes or paths.
 - Sends data out to Elasticsearch, Logstash, or other endpoints.
-Because it acts as a client, it doesn’t expose ports by default—so you don’t need to specify any ports: unless you’re doing something custom, like exposing its monitoring endpoint.
+  Because it acts as a client, it doesn’t expose ports by default—so you don’t need to specify any ports: unless you’re doing something custom, like exposing its monitoring endpoint.
 
 So unless you're explicitly enabling monitoring or debugging, no ports is perfectly normal.
 
@@ -802,8 +803,9 @@ to differentiate between the logs of different microservices and gateways.
            event.dataset: ${APPNAME}
            service_name: ${APPNAME}
 ```
+
 Filebeat picks up log messages from the location specified in the path field and sends to logstash
-*.log ensures that both combined.log and error.log are picked.
+\*.log ensures that both combined.log and error.log are picked.
 
 ```
 paths:
@@ -836,7 +838,7 @@ In each repo of express-gateway, cart and product microserivce and elk stack, go
 Settings ---> Security and Variables --->Actions
 
 We can here set the secrets and variables for the repo.
-These are accessed in the workflow file as  ${{vars.variable_name}} and ${{secrets.variable_name}}
+These are accessed in the workflow file as ${{vars.variable_name}} and ${{secrets.variable_name}}
 These can be only accessed within the workflow file.
 To access them in other files, we need to expose them as environment variables. Ensure they are in uppercase in case
 they are to be used in docker compose
@@ -853,7 +855,6 @@ env:
  APPNAME: ${{vars.APP_NAME}}
 ```
 
-
 Note that just running "docker compose up" will create containers within the Github runner and not
 in docker desktop. You can create containers in docker desktop this way.
 You need to ssh into a remote server, pull the images and then do a "docker compose up".
@@ -862,7 +863,7 @@ We have used workflow_dispatch to manually run the workflow from the Actions tab
 the user to provide the target environment and an optional docker tag for prod environment.
 
 ```
-on: 
+on:
  workflow_dispatch:
    inputs:
      environment:
@@ -873,7 +874,7 @@ on:
           - prod
         required: true
         default: 'dev'
-      
+
      tag:
       description: "Specify the image tag to be pulled for prod"
       required: false
@@ -885,15 +886,14 @@ The first step in the "build-and-deploy" job is to to checkout the git repo usin
 
 ```
  - name: Checkout repository
-            uses: actions/checkout@v4 
+            uses: actions/checkout@v4
             env:
-             var3: This is step level env var accessible only in this step  
-        
+             var3: This is step level env var accessible only in this step
+
 
 ```
 
 The next step is to check if the target environment is prod and the tag is provided. If tag not provided , throw an error
-
 
 ```
  - name: Validate PROD inputs
@@ -903,7 +903,7 @@ The next step is to check if the target environment is prod and the tag is provi
              echo "ERROR: tag is required for PROD deployments"
              exit 1
              fi
-          
+
 ```
 
 In the next step, we are overwriting the value of the TAG environment variable with the user provided tag, in case the target
@@ -957,7 +957,7 @@ These are set in the Repo settings ---> Secrets and Variables ---> Actions
 
 Below are the secrets:
 
-AZURE_SWARM_MANAGER_IP:  Used only in swarm-build-deploy.yml for swarm setup. This is the public IP
+AZURE_SWARM_MANAGER_IP: Used only in swarm-build-deploy.yml for swarm setup. This is the public IP
 of the VM which functions as the manager node in swarm cluster.
 
 AZURE_SWARM_MANAGER_USER:Used only in swarm-build-deploy.yml for swarm setup. This is the username
@@ -972,7 +972,7 @@ DOCKERHUB_PASSWORD: Contains the password for Dockerhub account
 Below are used for non-swarm deployment scenario in the build-deploy.yml.
 Since we used 2 Azure VM's : one for dev and other for prod environment, we have DNS name, public IP
 and username for the 2 VM's. The names below are self explanatory. We will ssh into the particular
-VM based on the environment to deploy the compose and env files into a particular folder and 
+VM based on the environment to deploy the compose and env files into a particular folder and
 then execute "docker compose up" to run the containers.
 
 AZURE_VM_DEV_DOMAIN
@@ -986,6 +986,406 @@ Below are the variables:
 
 APP_NAME: It is the name assigned to application deployed to Azure VM
 DOCKERHUB_USERNAME: This is the dockerhub login username
+
+# Interfaces, MongoDB Schema and API responses structure
+
+From my experience, we require 3 seperate interfaces types:
+1. An interface that models the Mongodb collection schema
+2. Single or multiple interfaces that model the API responses.
+3. Single or multiple interfaces that model incoming payload of the API.
+
+We have moved the interfaces corresponding 2. and 3. to a seperate TS package:api-contracts, so that it can be shared amongst the microservices.
+The TS package will be a single point of change in the interfaces. Its a github package. More details on this package is available
+in the repo itself
+
+The mongodb schema and the interface in 1. will be maintained in the respective microservice.
+
+We never pass the mongoose functions or details in the API response or payload i.e we never use mongoose types in the interfaces in 2. and 3.
+It is essential that the interfaces in 2. and 3. only using "string" as the type for fields that store ObjectId.
+Date remains Date in mongoose or JS. So no change.
+To help with this conversion, we have written a mapper.ts to convert the ProductDocument(which contains all mongoose details) into
+ProductModel, which is a plain JS object.
+
+```
+export function schemaToResponseMapper(product: ProductDocument): ProductModel {
+    const productObj=product.toObject();
+    return {
+        ...productObj,
+        ...{
+            _id: productObj._id.toString(),
+            ...{
+                reviews: productObj.reviews.map((x:ReviewDocument) => {
+                    return {
+                        ...x,
+                        ...{ _id: x._id.toString() }
+                    }
+                })
+            }
+        }
+    }
+}
+
+```
+
+Our first step in the conversion is to use The `toObject()` method, to convert a Mongoose document instance into a plain JavaScript object (POJO)
+`const productObj=product.toObject();`
+Next, we have used that object: productObj to convert all ObjectId fields into string fields using the `toString()`.
+
+Note that the same string fields in the incoming API payload, can be converted into ObjectID using `new mongoose.Types.ObjectId(fieldName)`;
+This is required when you need to query these fields. Below is an example.
+```
+ const productObjectIds= productIds.map(x=>new mongoose.Types.ObjectId(x)); //convert string into ObjectId
+const products: ProductDocument[] = await productModel.find({ _id: { $in: productObjectIds } } //find always returns array of docs or []
+```
+
+Another important point is related to optional and required fields in the schema vs interface.
+
+In the schema `title: { type: String, required: true }` means the title field is also mandatory in the interface `title:string`. It cannot
+be `title?:string`.
+If using `{timestamps:true}` in schema, ensure the additonal fields: `createdAt` and `updatedAt` are also included in the interfaces.
+`_id` is not included in the schema. It is added by default in the main document and sub documents.
+You need to explicitly add it in the interface if required or map it to some other field name in the interface(eg: ID) or omit it if not required.
+
+# Schema Validators
+
+Here’s the **full list of built-in validators in Mongoose** you can use in your schema definitions:
+
+---
+
+## 🔑 Default Validators
+- **`required`** → Ensures the field is present.  
+- **Type casting** → Automatically checks that values can be cast to the defined type (`String`, `Number`, `Date`, etc.).  
+
+---
+
+## 📋 Built-in Validators
+| Validator | Applies To | Description |
+|-----------|------------|-------------|
+| `required` | All types | Field must be present. |
+| `min` | Number, Date | Minimum value allowed. |
+| `max` | Number, Date | Maximum value allowed. |
+| `enum` | String | Value must be one of a predefined set. |
+| `match` | String | Value must match a regex pattern. |
+| `minLength` | String | Minimum length of string. |
+| `maxLength` | String | Maximum length of string. |
+| `validate` | Any type | Custom validator function. |
+| `unique` | Any type | Creates a unique index in MongoDB (not a true validator, but enforces uniqueness at DB level). |
+
+---
+
+## 📌 Example
+```js
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  age: { type: Number, min: 18, max: 65 },
+  email: { type: String, match: /.+\@.+\..+/ },
+  role: { type: String, enum: ['admin', 'user', 'guest'] },
+  bio: { type: String, minLength: 10, maxLength: 200 }
+});
+```
+
+---
+
+✅ **Summary:**  
+- **Always applied by default** → `required` and type casting.  
+- **Optional extras you can add** → `min`, `max`, `enum`, `match`, `minLength`, `maxLength`, `validate`, `unique`.  
+
+# Getting data into the collection
+
+## 📊 Data Insertion Methods with Example Operators
+
+| Method | Ease of Use | Performance | Best Use Case | Example Operators / Commands |
+|--------|-------------|-------------|---------------|-------------------------------|
+| **Mongoose (Node.js ORM)** | High | Moderate | Web apps, APIs needing schema validation & middleware | `new User({...}).save()` or `User.create({...})` |
+| **MongoDB Driver (Native)** | Moderate | High | High-performance apps, microservices | `db.collection('users').insertOne({...})` or `insertMany([...])` |
+| **`mongosh` (Mongo Shell)** | High | Low | Quick testing, debugging, admin tasks | `db.users.insertOne({...})`, `db.users.insertMany([...])` |
+| **`mongoimport` CLI** | Moderate | High | Bulk import, migrations | `mongoimport --db=test --collection=users --file=users.json --jsonArray` |
+| **MongoDB Compass / Atlas UI** | Very High | Low | Manual edits, demos, non-technical users | GUI “Insert Document” button (no operator, point-and-click) |
+| **REST / GraphQL APIs** | Moderate | Moderate | Production apps where clients submit data | `POST /api/users` → backend calls `insertOne({...})` |
+| **Bulk Operations (`insertMany`, `bulkWrite`)** | Moderate | Very High | Large-scale inserts, ETL workloads | `db.users.insertMany([...])`, `db.users.bulkWrite([{ insertOne: {...} }, ...])` |
+| **ETL / Data Pipelines (Kafka, Spark, Airflow)** | Low | Very High | Enterprise integration, real-time ingestion | Operators vary: Spark → `.write.format("mongo").save()`, Kafka → MongoDB Sink Connector |
+
+---
+
+### ✅ Key Takeaways
+- **Operators in code**: `insertOne`, `insertMany`, `bulkWrite` are the core MongoDB operators across most methods.  
+- **Mongoose adds abstraction**: `save()`, `create()` wrap those operators with schema validation.  
+- **CLI tools**: `mongoimport` uses flags instead of operators.  
+- **GUI tools**: Compass/Atlas UI are operator-free, but internally they still call `insertOne`.  
+- **ETL pipelines**: Use connectors or libraries that eventually call the same insert operators under the hood.  
+
+mongoimport --file "C:\Users\User\Desktop\users.json" --db myUsers --collection users --drop --jsonArray
+
+```
+PS C:\Users\User\angular\mongodb> mongoimport --file "C:\Users\User\Desktop\users.json" --db myUsers --collection users --drop --jsonArray
+2026-01-19T17:37:23.2o42+0530    connected to: mongodb://localhost/
+2026-01-19T17:37:23.244+0530    dropping: myUsers.users
+2026-01-19T17:37:23.271+0530    30 document(s) imported successfully. 0 document(s) failed to import.
+PS C:\Users\User\angular\mongodb> show dbs
+
+```
+
+mongoimport will respect schema if you have created a collection with validators in advance. 
+
+```
+db.createCollection("users", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["name", "age"],
+      properties: {
+        name: { bsonType: "string" },
+        age: { bsonType: "int", minimum: 18 }
+      }
+    }
+  }
+});
+
+```
+
+In each microservice, we have added the data into collection via the mongoose create()
+which automatically does the schema validation. Check dbConnectionService.ts
+
+# Referencing vs Embedding documents from other collections
+
+In MongoDB, you can model relationships between documents using **embedding** or **referencing**, and the choice depends on your application's access patterns, scalability needs, and data complexity. Here’s a clear comparison:
+
+## 📊 Embedding vs Referencing in MongoDB
+
+| Aspect | Embedding | Referencing |
+|--------|-----------|-------------|
+| **Definition** | Store related data inside a single document (nested structure). | Store related data in separate collections and link them via ObjectIDs or keys. |
+| **Performance** | Faster reads since all related data is fetched in one query. | Slower reads, often requiring multiple queries or `$lookup` joins. |
+| **Atomicity** | Updates to the document are atomic (all-or-nothing). | Atomicity limited to individual documents; cross-document transactions may be needed. |
+| **Data Size** | Best for small, bounded subdocuments. | Better for large, growing, or frequently changing related data. |
+| **Flexibility** | Less flexible if relationships change often. | More flexible for complex, many-to-many, or shared relationships. |
+| **Use Cases** | User profile with embedded addresses, product with embedded reviews. | Orders referencing customers, blog posts referencing authors, carts referencing products. |
+| **Schema Complexity** | Simpler queries, but risk of bloated documents. | More normalized, but queries can be more complex. |
+
+## ✅ When to Use Each
+- **Embedding is ideal when:**
+  - Data is tightly coupled and always accessed together.
+  - The relationship is one-to-few (e.g., a user with a few addresses).
+  - You want fast reads and atomic updates.
+
+- **Referencing is ideal when:**
+  - Data is loosely coupled or shared across multiple documents.
+  - The relationship is one-to-many or many-to-many (e.g., products in multiple carts).
+  - You need scalability and avoid document size limits (16 MB in MongoDB).
+
+## ⚖️ Trade-Offs
+- Embedding favors **denormalization** (speed, simplicity) but risks duplication and large documents.
+- Referencing favors **normalization** (flexibility, scalability) but requires joins or multiple queries.
+
+- **Embed** when data is small, tightly coupled, and immutable (like flash‑sale products, shipping addresses, or order line items).
+- **Reference** when data is large, reused, or frequently updated (like users, catalog products, or inventory).
+
+In the cart microservice, we are using the referencing approach over embedding.
+The products in the cart are referenced in the carts collection using ObjectIDs. 
+
+
+## ✅ Scenario Where Embedding Is Correct
+
+Imagine you’re building a **flash‑sale app** where:
+
+- Products are **ephemeral** (only available for a few hours).
+- Product details (name, price, discount) **never change once published**.
+- The cart is **short‑lived** (users either check out quickly or the cart expires).
+- You don’t need to maintain historical consistency across multiple carts.
+
+### Example Schema (Embedded)
+
+```json
+{
+  "_id": ObjectId("..."),
+  "userId": ObjectId("..."),   // reference to Users collection
+  "items": [
+    {
+      "product": {
+        "name": "Wireless Mouse",
+        "sku": "WM123",
+        "price": 19.99,
+        "discount": 0.10
+      },
+      "quantity": 2
+    },
+    {
+      "product": {
+        "name": "Mechanical Keyboard",
+        "sku": "MK456",
+        "price": 79.99,
+        "discount": 0.20
+      },
+      "quantity": 1
+    }
+  ],
+  "createdAt": ISODate("..."),
+  "expiresAt": ISODate("...")
+}
+```
+
+---
+
+## 🔎 Why Embedding Works Here
+- **No duplication concerns**: Products are short‑lived, so embedding avoids the overhead of maintaining a separate product collection.
+- **Fast reads**: You can fetch the cart with all product details in one query — ideal for checkout flows.
+- **Immutable product data**: Since flash‑sale products don’t change, embedding avoids the stale‑data problem.
+- **Simpler design**: No need for `$lookup` or joins; the cart is self‑contained.
+
+If using references method, 
+Inside one monolith: populate() and ref works because all models are registered in the same Mongoose connection.
+Inside microservices: you cannot populate() across services. You must call the other service’s API to enrich your cart response.
+
+Each microservice maintains its own DB and hence its own mongoose schema.
+
+Its possible that when you are sending the response back to client, you need data from multiple
+DB's(and hence multiple collections). Since we have microsvcs, each microsvcs manages its own DB and 
+collections.
+Thus API is the only way for 1 microsvcs to fetch data from the DB of another microservice.
+If cart microservice requires the details of the products stored in the cart, it will send a request
+to the gateway microservice, which in turn connects to the product microservice, gets the data and
+returns it back to the cart microservice.
+
+# Transactions
+
+We have used transactions when checking out the cart. We required 2 updates: creating an order in the orders collection and also
+emptying the cart for the user in the carts collection. Either both should succeed or both should fail. In order to ensure this, transactions are required.
+
+In MongoDB, transactions are needed when you want to guarantee ACID properties (Atomicity, Consistency, Isolation, Durability) across multiple documents, collections, or even databases. 
+
+By default, MongoDB operations on a single document are atomic, so you don’t need transactions for most embedded-document use cases. But when relationships are modeled with referencing, or when multiple documents must be updated together, transactions become important.
+
+
+### 🔑 When Transactions Are Needed
+- **Multi-document updates**  
+  Example: Updating both an `orders` document and a `products` document to reflect a purchase.
+- **Cross-collection consistency**  
+  Example: Creating an order in the `orders` collection while simultaneously decrementing stock in the `inventory` collection.
+- **Many-to-many relationships**  
+  Example: A student enrolling in multiple courses, requiring updates in both `students` and `courses` collections.
+- **Financial or critical workflows**  
+  Example: Banking transfers, checkout flows, or any process where partial updates could cause data corruption.
+- **Sharded clusters**  
+  Transactions can span multiple shards, ensuring consistency across distributed data.
+
+### 🚫 When Transactions Are Not Needed
+- **Single-document operations**  
+  MongoDB guarantees atomicity at the document level, including updates to embedded arrays and subdocuments.
+- **Bounded, embedded data**  
+  If you embed related data (like a user’s addresses inside the user document), you can rely on single-document atomicity instead of transactions.
+- **Eventual consistency is acceptable**  
+  In scenarios where slight delays or retries are tolerable, transactions may be overkill.
+
+### ⚖️ Trade-Offs
+- Transactions add **performance overhead** compared to single-document operations.
+- They are powerful but should be reserved for cases where **data integrity across multiple documents is critical**.
+- Embedding often reduces the need for transactions, while referencing increases the likelihood you’ll need them.
+
+
+### 🛒 Case 1: Embedding (No Transactions Needed)
+Suppose you embed products directly inside the cart document:
+
+```json
+{
+  "_id": "cart123",
+  "userId": "user456",
+  "items": [
+    { "productId": "p1", "name": "Laptop", "price": 1200, "qty": 1 },
+    { "productId": "p2", "name": "Mouse", "price": 25, "qty": 2 }
+  ]
+}
+```
+
+- **Checkout flow:**  
+  - You atomically update the cart document to clear items.  
+  - You atomically create an order document with the embedded items.  
+- **Why no transaction?**  
+  Each operation is a single-document write, and MongoDB guarantees atomicity at the document level. No cross-document consistency issues.
+
+---
+
+### 📦 Case 2: Referencing (Transactions Needed)
+Now imagine you reference products instead of embedding:
+
+```json
+{
+  "_id": "cart123",
+  "userId": "user456",
+  "items": [
+    { "productId": "p1", "qty": 1 },
+    { "productId": "p2", "qty": 2 }
+  ]
+}
+```
+
+Products live in a separate `products` collection:
+
+```json
+{ "_id": "p1", "name": "Laptop", "price": 1200, "stock": 10 }
+{ "_id": "p2", "name": "Mouse", "price": 25, "stock": 50 }
+```
+
+- **Checkout flow:**  
+  - Create an order document in `orders`.  
+  - Decrement stock in `products`.  
+  - Clear items in `cart`.  
+- **Why transactions?**  
+  These are **three separate documents across two collections**. Without a transaction, you risk partial updates (e.g., stock decremented but order not created). A multi-document transaction ensures all-or-nothing consistency.
+
+---
+
+### ⚖️ Summary
+- **Embedding** → simpler, atomic by default, no transactions needed.  
+- **Referencing** → flexible, scalable, but requires transactions for workflows that span multiple documents/collections.  
+
+
+# Integrating with Swagger UI and Open API for API documentation
+
+We have added the openapi documentations for each microservice in the api-contracts github package.
+We are installing the package in each microservice. Since its a github package, authentication is required when installing it.
+
+Thus we have added a .npmrc file in the root of the project. ramyabala221190 is the username. ${GITHUB_PAT} will be replaced with your
+github personal access token, save the file and then do the installation of the api-contracts package from github.
+```
+@ramyabala221190:registry=https://npm.pkg.github.com/
+//npm.pkg.github.com/:_authToken=${GITHUB_PAT}
+
+For installation of the local .tgz file, this PAT is not required. Its only needed when installing from github.
+
+```
+In order to load the swagger UI dashboard when the microservice is up and running, we are installing `swagger-ui-express` npm package as a dependency.  We are also installing swagger-cli as dev dep to enable bundling in case we are referencing schemas or anything else from other
+.json files
+```
+npm i --save-dev @types/swagger-ui-express
+npm i --save swagger-ui-express
+npm i --save-dev swagger-cli
+```
+
+So when we start the microservice using `npm run local`, the below pre script will also execute automatically
+
+`"prelocal": "swagger-cli bundle node_modules/@ramyabala221190/api-contracts/dist/openapi/product/openapi.json -o bundled-product.json -t json",`
+
+So we are picking the correct openapi.json file from the node_modules for the current microservice, bundling it into a bundled-product.json
+file in the root of the project. We will be using this file in the app.ts.
+
+Finally in the app.ts, we add the below lines of code to integrate the openapi.json with the swagger ui
+dashboard. /api-docs is the route we need to hit, to access the Swagger UI dashboard. So we hit localhost:3601/api-docs to access the dashboard.
+
+```
+if (process.env.APP_ENV !== "prod") {
+  //we dont swagger in prod
+ const productJSONPath=join(`${process.cwd()}`,'bundled-product.json');
+  const productJSON= readFileSync(productJSONPath,{encoding:'utf8'});
+  app.use(
+    '/api-docs',
+    swaggerUI.serve,
+    swaggerUI.setup(JSON.parse(productJSON), { explorer: true, swaggerOptions: {
+    supportedSubmitMethods: ['get'] // Disables the "Execute" button for POST, PUT, DELETE
+  } })
+  )
+}
+
+```
 
 # Kubernetes
 
@@ -1030,7 +1430,7 @@ We have a basic values.yml file and an override file for "dev" and "prod" : valu
 
 We use these files when doing the helm upgrade in the "start-dev" and "start-prod" script. We can use -f or --values to pass the path to the
 values.yml and the override file. Always first pass the values.yaml followed by the override file so that values are correctly overrided.
---set can also be used override fields in the values.yaml. Since the value of image tag is not static, we prefer to override it using --set rather than the override file. 
+--set can also be used override fields in the values.yaml. Since the value of image tag is not static, we prefer to override it using --set rather than the override file.
 
 ```
     "helm-upgrade-dev":"helm upgrade product-express-app-release ./charts/node-product-microsvcs/ --install --debug -f ./charts/node-product-microsvcs/values.yml -f ./charts/node-product-microsvcs/values-dev.yml --set image.express=node-product-express-app:2",
@@ -1040,3 +1440,7 @@ values.yml and the override file. Always first pass the values.yaml followed by 
 ```
     "helm-upgrade-prod":"helm upgrade product-express-app-release ./artifacts/node-product-microsvcs-chart-1.0.4.tgz --install --debug -f ./charts/node-product-microsvcs/values.yml -f ./charts/node-product-microsvcs/values-prod.yml --set image.express=node-product-express-app:2"
 ```
+
+
+
+
